@@ -1,0 +1,43 @@
+[build-system]
+requires = [
+    "setuptools",
+    "setuptools-scm",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bigquery-advanced-utils"
+authors = [
+    {name = "Alessio Siciliano", email = "alessiosiciliano@outlook.it"},
+]
+description = "A utility library that enhances the official BigQuery Python client by providing additional tools for efficient query management, data processing, and automation. Designed for developers and data scientists, `bigquery-advanced-utils` simplifies working with Google BigQuery."
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["python", "bigquery", "google-cloud", "datatransfer"]
+license = {text = "GPL-3.0"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent"
+]
+dynamic = ["version", "dependencies"]
+#dynamic = ["dependencies"]
+#version = "0.0.1"
+
+[tool.setuptools.dynamic]
+version = {attr = "bigquery_advanced_utils.__version__"}
+dependencies = {file = ["requirements.txt"]}
+optional-dependencies.dev = { file = ["requirements-dev.txt"] }
+
+[tool.setuptools.packages.find]
+#where = ["src"]
+include=["bigquery_advanced_utils*"]
+#include=["*"]
+namespaces = false
+
+[tool.black]
+line-length = 79
+
+[tool.mypy]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true

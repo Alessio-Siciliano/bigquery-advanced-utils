@@ -1,0 +1,134 @@
+name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' 
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build distribution 📦
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: read
+
+    steps:
+      - name: Wait for Linting Jobs to Finish
+        id: check_status
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let maxRetries = 10;
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+
+            for (let i = 0; i < maxRetries; i++) {
+              const { data } = await github.rest.repos.getCombinedStatusForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: '${{ github.sha }}'
+              });
+
+              const pylintStatus = data.statuses.find(status => status.context === 'PyLint')?.state;
+              const blackStatus = data.statuses.find(status => status.context === 'Black Formatter')?.state;
+
+              console.log(`PyLint: ${pylintStatus} | Black: ${blackStatus}`);
+
+              if (pylintStatus === 'success' && blackStatus === 'success') {
+                console.log('Both Pylint and Black succeeded.');
+                return;
+              }
+              if (pylintStatus !== undefined && blackStatus !== undefined) {
+                throw new Error("Linting jobs did not complete successfully.");
+              }
+
+              console.log(`Retrying... (${i + 1}/${maxRetries})`);
+              await delay(30000);  // wait 30s
+            }
+
+            throw new Error("Linting jobs did not complete successfully.");
+      - uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.7"
+      - name: Install pypa/build
+        run: >-
+          python3 -m
+          pip install
+          build
+          --user
+      - name: Build a binary wheel and a source tarball
+        run: python3 -m build
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+  
+  publish-to-pypi:
+    name: >-
+      Publish Python 🐍 distribution 📦 to PyPI
+    needs:
+    - build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/bigquery-advanced-utils
+    permissions:
+      id-token: write
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+    - name: Publish distribution 📦 to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: >-
+      Sign the Python 🐍 distribution 📦 with Sigstore
+      and upload them to GitHub Release
+    needs:
+    - publish-to-pypi
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+    - name: Sign the dists with Sigstore
+      uses: sigstore/gh-action-sigstore-python@v3.0.0
+      with:
+        inputs: >-
+          ./dist/*.tar.gz
+          ./dist/*.whl
+    - name: Create GitHub Release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: >-
+        gh release create
+        '${{ github.ref_name }}'
+        --repo '${{ github.repository }}'
+        --notes ""
+    - name: Upload artifact signatures to GitHub Release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      # Upload to GitHub Release using the `gh` CLI.
+      # `dist/` contains the built packages, and the
+      # sigstore-produced signatures and certificates.
+      run: >-
+        gh release upload
+        '${{ github.ref_name }}' dist/**
+        --repo '${{ github.repository }}'
