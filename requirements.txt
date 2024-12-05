@@ -1,0 +1,4 @@
+google-cloud-bigquery-datatransfer==3.17.1
+google-cloud-resource-manager==1.13.1
+google-cloud-bigquery==3.27.0
+types-requests==2.32.0.20241016
