@@ -47,9 +47,17 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const sha = context.payload.after;
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
+            const sha = '${{ github.event.pull_request.head.sha }}';
+            const eventName = process.env.GITHUB_EVENT_NAME;
+            const commitSha = eventName === 'pull_request'
+              ? '${{ github.event.pull_request.head.sha }}'
+              : process.env.GITHUB_SHA;
+            
+            console.log(`Event Name: ${eventName}`);
+            console.log(`Commit SHA: ${commitSha}`);
+
+            const owner = '${{ github.repository_owner }}';
+            const repo = '${{ github.event.repository.name }}';
             const outcome = '${{ needs.build.result }}';
             const status = outcome === 'success' ? 'success' : 'failure';
             
@@ -61,7 +69,7 @@ jobs:
             await github.rest.repos.createCommitStatus({
               owner: owner,
               repo: repo,
-              sha: sha,
+              sha: commitSha,
               state: status,
               context: 'PyLint',
               description: 'Status of the PyLint execution'
