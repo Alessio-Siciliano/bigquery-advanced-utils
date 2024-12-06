@@ -1,11 +1,16 @@
 """ Module to manage all the functions regarding Bigquery. """
 
+import csv
 from typing import Optional, Union, Dict
 from google.cloud.bigquery import Client
-from google.cloud.bigquery.job import QueryJobConfig, LoadJobConfig
+from google.cloud.bigquery.job import (
+    QueryJobConfig,
+    LoadJobConfig,
+    SourceFormat,
+)
 from google.api_core.client_info import ClientInfo
 from google.api_core.client_options import ClientOptions
-from google.api_core.exceptions import NotFound
+from google.api_core.exceptions import NotFound, BadRequest
 from google.auth.credentials import Credentials
 import requests
 
@@ -77,3 +82,66 @@ class BigQueryClient(Client):
             return True
         except NotFound:
             return False
+
+    def load_data_from_csv(  # pylint: disable=too-many-locals
+        self,
+        dataset_id: str,
+        table_id: str,
+        csv_file_path: str,
+        test_functions: list | None = None,
+        encoding: str = "UTF-8",
+    ) -> None:
+        """Load a CSV file to BigQuery with tests.
+
+        Parameters
+        ----------
+        dataset_id:
+            Name of the destination dataset.
+
+        table_id:
+            Name of the destination table.
+
+        csv_file_path: str
+            Path of the CSV file.
+
+        test_functions: list
+            List of checks that can be implemented.
+
+        encoding: str
+            Encoding of the file.
+            DEFAULT: utf-8
+
+        """
+        with open(csv_file_path, "r", encoding=encoding) as file_text:
+            reader = csv.reader(file_text)
+            header = next(reader)  # Header (first row)
+
+            # Run tests
+            if test_functions:
+                column_sums: list[set] = [set() for _ in header]
+                for idx, row in enumerate(reader, start=1):
+                    for test_function in test_functions:
+                        test_function(
+                            idx,
+                            row,
+                            header,
+                            column_sums,
+                        )
+
+        # Open again the file with the binary to load in BigQuery
+        with open(csv_file_path, "rb") as file_binary:
+            job_config = LoadJobConfig(
+                source_format=SourceFormat.CSV,
+                autodetect=True,  # Autodetect schema
+            )
+            load_job = self.load_table_from_file(
+                file_binary, f"{dataset_id}.{table_id}", job_config=job_config
+            )
+
+            try:
+                load_job.result()  # Wait
+                print(
+                    f"Data loaded successfully into {dataset_id}.{table_id}."
+                )
+            except BadRequest as e:
+                print(f"Error loading data: {e}")
