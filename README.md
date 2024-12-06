@@ -1,13 +1,13 @@
 # bigquery-advanced-utils
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/Alessio-Siciliano/bigquery-advanced-utils/ci.yml?branch=main)
+![Total Downloads](https://static.pepy.tech/badge/bigquery-advanced-utils?textLength=250)
 ![License](https://img.shields.io/badge/license-GNU%20GPL%20v3-blue)
 ![Version](https://img.shields.io/github/v/release/Alessio-Siciliano/bigquery-advanced-utils)
 ![PyPI](https://img.shields.io/pypi/v/bigquery-advanced-utils)
 ![Issues](https://img.shields.io/github/issues/Alessio-Siciliano/bigquery-advanced-utils)
 ![Contributors](https://img.shields.io/github/contributors/Alessio-Siciliano/bigquery-advanced-utils)
-![PyLint](https://img.shields.io/github/workflow/status/Alessio-Siciliano/bigquery-advanced-utils/PyLint?label=PyLint&logo=python)
-![Black](https://img.shields.io/github/workflow/status/Alessio-Siciliano/bigquery-advanced-utils/BlackLint?label=Black&logo=python)
+![PyLint](https://img.shields.io/github/actions/workflow/status/Alessio-Siciliano/bigquery-advanced-utils/pylint.yml?branch=main&label=PyLint&logo=python)
+![Black](https://img.shields.io/github/actions/workflow/status/Alessio-Siciliano/bigquery-advanced-utils/black_formatter.yml?branch=main&label=Black&logo=python)
 
 **BigQuery-advanced-utils** is a lightweight utility library that extends the official Google BigQuery Python client.  
 It simplifies tasks like **query management**, *data processing*, and *automation*.  
@@ -32,7 +32,6 @@ pip install bigquery-advanced-utils
 
 ## Requirements
 - Python 3.10+
-- Google Cloud BigQuery client library
 
 ## Contributing
 
