@@ -75,7 +75,8 @@ class DataTransferClient(DataTransferServiceClient):
 
         parent:
             The BigQuery project id, it should be returned:
-                projects/{project_id}/locations/{location_id}
+                projects/{project_id}/locations/{location_id} or
+                projects/{project_id}
 
         retry:
             Designation of what errors, if any, should be retried.
@@ -137,7 +138,7 @@ class DataTransferClient(DataTransferServiceClient):
         return transfer_configs_request_response
 
     def list_transfer_config_by_owner_email(
-        self, owner_email: str, project_id: str
+        self, owner_email: str, parent: str
     ) -> list[TransferConfig]:
         """Get ALL schedule queries of a given user.
 
@@ -146,9 +147,10 @@ class DataTransferClient(DataTransferServiceClient):
         owner_email:
             Owner of the scheduled query.
 
-        project_id:
-            The BigQuery project id, it should be returned:
-                projects/{project_id}/locations/{location_id}
+        parent:
+            The BigQuery project id, it should be in the format:
+                projects/{project_id}/locations/{location_id} or
+                projects/{project_id}
 
         Returns
         -------
@@ -165,7 +167,7 @@ class DataTransferClient(DataTransferServiceClient):
         # If not cached, run it
         if True not in self.cached_iterator:
             self.cached_iterator[True] = self.list_transfer_configs(
-                parent=project_id, with_email=True
+                parent=parent, with_email=True
             )
 
         return list(
@@ -186,8 +188,9 @@ class DataTransferClient(DataTransferServiceClient):
             Name of the table (not needed entire path).
 
         parent:
-            The BigQuery project id, it should be returned:
-                projects/{project_id}/locations/{location_id}
+            The BigQuery project id, it should be in the format:
+                projects/{project_id}/locations/{location_id} or
+                projects/{project_id}
 
         Returns
         -------

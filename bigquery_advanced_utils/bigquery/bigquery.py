@@ -20,7 +20,7 @@ class BigQueryClient(Client):
 
     def __init__(  # pylint: disable=useless-parent-delegation
         self,
-        project: Optional[str] = None,
+        project_id: Optional[str] = None,
         credentials: Optional[Credentials] = None,
         _http: Optional[requests.Session] = None,
         location: Optional[str] = None,
@@ -30,14 +30,14 @@ class BigQueryClient(Client):
         client_options: Optional[Union[ClientOptions, Dict]] = None,
     ) -> None:
         super().__init__(
-            project,
-            credentials,
-            _http,
-            location,
-            default_query_job_config,
-            default_load_job_config,
-            client_info,
-            client_options,
+            project=project_id,
+            credentials=credentials,
+            _http=_http,
+            location=location,
+            default_query_job_config=default_query_job_config,
+            default_load_job_config=default_load_job_config,
+            client_info=client_info,
+            client_options=client_options,
         )
 
     def get_estimated_bytes_by_query(self, query: str) -> float:
