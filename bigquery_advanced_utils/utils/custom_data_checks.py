@@ -45,7 +45,7 @@ class CustomDataChecks:
                 f"Row length: {len(row)}, Number of columns: {len(header)}"
             )
 
-    def check_unique_column(
+    def check_unique(
         self,
         idx: int,
         row: list,
@@ -91,7 +91,7 @@ class CustomDataChecks:
             if value in column_sums[col_index]:
                 raise ValueError(
                     f"Row {idx}: Duplicate value '{value}'"
-                    f"found in column '{column_name}'."
+                    f" found in column '{column_name}'."
                 )
             column_sums[col_index].add(value)
 
@@ -153,6 +153,7 @@ class CustomDataChecks:
         max_value: Optional[int | float] = None,
     ) -> None:
         """Check if a column has values in the interval.
+        This function allows NULL.
 
         Parameters
         ----------
@@ -184,6 +185,9 @@ class CustomDataChecks:
         """
         columns_to_test = columns_to_test or header
 
+        if min_value is None or max_value is None:
+            raise ValueError("Min value or max value missing!")
+
         for column_name in columns_to_test:
             if column_name not in header:
                 raise ValueError(
@@ -192,6 +196,9 @@ class CustomDataChecks:
 
             col_index = header.index(column_name)
             value = row[col_index]
+
+            if value == "" or value is None:
+                continue
 
             try:
                 numeric_value = float(value)
@@ -230,6 +237,7 @@ class CustomDataChecks:
         regex_pattern: str = "",
     ) -> None:
         """Check if a column matches a regex pattern.
+        This function allows NULL
 
         Parameters
         ----------
@@ -274,7 +282,7 @@ class CustomDataChecks:
             col_index = header.index(column_name)
             value = row[col_index]
 
-            if not regex.match(value):
+            if not regex.match(value) and value != "" and value is not None:
                 raise ValueError(
                     (
                         f"Row {idx}: "
@@ -294,6 +302,7 @@ class CustomDataChecks:
         date_format: str = "%Y-%m-%d",
     ) -> None:
         """Check if the date match the pattern.
+        This function allows NULL
 
         Parameters
         ----------
@@ -334,14 +343,18 @@ class CustomDataChecks:
 
             try:
                 # Let's try to parse the string only if string
-                if isinstance(value, str):
+                if (
+                    isinstance(value, str)
+                    and value is not None
+                    and value != ""
+                ):
                     datetime.strptime(value, date_format)
 
             except (ValueError, TypeError) as e:
                 raise ValueError(
                     f"Row {idx}: "
                     f"The column '{column_name}'"
-                    f"contains an invalid value '{value}'. "
+                    f" contains an invalid value '{value}'. "
                     f"Expected format: {date_format}. "
                     f"Error: {str(e)}"
                 ) from e
@@ -356,6 +369,7 @@ class CustomDataChecks:
         expected_datatype: Optional[type] = None,
     ) -> None:
         """Check if the column match a datatype.
+        This function allows NULL
 
         Parameters
         ----------
@@ -396,11 +410,14 @@ class CustomDataChecks:
             col_index = header.index(column_name)
             value = row[col_index]
 
-            if not isinstance(value, expected_datatype):
+            try:
+                if value != "" and value is not None:
+                    expected_datatype(value)
+            except Exception as e:
                 raise ValueError(
                     f"Row {idx}: Value '{value}' in column '{column_name}' "
                     f"is not of type {expected_datatype.__name__}."
-                )
+                ) from e
 
     def check_in_set(
         self,
@@ -412,6 +429,7 @@ class CustomDataChecks:
         valid_values_set: Optional[list] = None,
     ) -> None:
         """Check if the value is inside a list
+        If a field is NULL this function returns error
 
         Parameters
         ----------
@@ -457,17 +475,16 @@ class CustomDataChecks:
                 datatype_of_item_in_list = type(item)
                 try:
                     converted_value = datatype_of_item_in_list(value)
+                except (ValueError, TypeError) as e:
+                    raise ValueError(
+                        f"The column data type does not match the type of the"
+                        f" values provided for the check: {e}"
+                    ) from e
 
-                except (ValueError, TypeError):
-                    pass
-
-                print(value, item, converted_value)
                 if item == converted_value:
-                    print("aggiorno...")
                     found = True
                     break
 
-            print("result", found)
             if not found:
                 raise ValueError(
                     (
