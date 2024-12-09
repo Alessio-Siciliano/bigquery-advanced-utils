@@ -1,7 +1,9 @@
 # Changelog
 
-## [0.0.3] - 2024-12-06
+## [0.0.1.dev4] - 2024-12-09
 ### Added
-- New function to load CSV to BigQuery.
-- New functions to check each column of the CSV file
-
+- New module *constants* to store all the constants.
+- New file *Taxonomy* to collect the definitions and names ensuring consistency in terminology.
+- New *custom checks* to upload a file to Bigquery with the addition of several pre-built tests (eg. not null, unique, format...).
+- New function "grant_permission" to give/remove/update permissions on a table or dataset.
+- New logging system to improve the debug message and speed up bugfix
