@@ -3,7 +3,7 @@
 import logging
 
 
-def setup_logging(level: str = "INFO") -> None:
+def setup_logger(level: str = "INFO") -> None:
     """Logging system
 
     Parameters
