@@ -36,7 +36,7 @@ class BigQueryClient(Client):
 
     def __init__(  # pylint: disable=useless-parent-delegation
         self,
-        project_id: str,
+        project_id: Optional[str] = None,
         credentials: Optional[Credentials] = None,
         _http: Optional[requests.Session] = None,
         location: Optional[str] = None,
