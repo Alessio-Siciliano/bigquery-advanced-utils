@@ -1,6 +1,7 @@
 """ This module provides a set of useful functions to manipulate strings. """
 
 import re
+from typing import Tuple
 from bigquery_advanced_utils.utils.custom_exceptions import (
     InvalidArgumentToFunction,
 )
@@ -108,3 +109,31 @@ class String:
 
         # Remove duplicates with set()
         return list(set(matches))
+
+    def parse_gcs_path(self, gcs_uri: str) -> Tuple[str, str]:
+        """Parses a GCS URI and returns the bucket name and path.
+
+        Parameters
+        ----------
+        gcs_uri: str
+            URL of a storage bucket/element.
+
+        Return
+        -------
+        bucket_name
+            Name of the bucket.
+
+        folder
+            Folder inside the bucket.
+
+        Raises
+        ------
+        ValueError
+            Wrong URL.
+        """
+        if not gcs_uri.startswith("gs://"):
+            raise ValueError("Path must start with 'gs://'")
+        parts = gcs_uri[5:].split("/", 1)
+        bucket_name = parts[0]
+        folder = parts[1] if len(parts) > 1 else ""
+        return bucket_name, folder
