@@ -19,6 +19,9 @@ This document collects the definitions and names of the taxonomies used in the p
 ### **Taxonomy name**: `query`
 > **Description**: String that contains an SQL query.
 
+### **Taxonomy name**: `transfer_config_id`
+> **Description**: ID of the transfer config (a subset of the parent that contains also the project and the location)
+
 # Additional Notes
 
 Ensure that you use taxonomy names consistently to avoid confusion and improve content organization.
