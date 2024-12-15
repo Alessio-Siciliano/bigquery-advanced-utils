@@ -61,7 +61,9 @@ class DataTransferClient(DataTransferServiceClient):
         self.location = location
         self.project_id = project_id
         self.string_utils = String()
-        self.bigquery_client = BigQueryClient()
+        self.bigquery_client = BigQueryClient(
+            credentials=credentials, project_id=project_id, location=location
+        )
         self.cached_transfer_configs_list: list[ExtendedTransferConfig] = []
 
         self.parent = f"projects/{self.project_id}/locations/{self.location}"

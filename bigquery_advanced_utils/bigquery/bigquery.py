@@ -36,10 +36,10 @@ class BigQueryClient(Client):
 
     def __init__(  # pylint: disable=useless-parent-delegation
         self,
-        project_id: Optional[str] = None,
-        credentials: Optional[Credentials] = None,
+        credentials: Credentials,
+        project_id: str,
+        location: str = "EU",
         _http: Optional[requests.Session] = None,
-        location: Optional[str] = None,
         default_query_job_config: Optional[QueryJobConfig] = None,
         default_load_job_config: Optional[LoadJobConfig] = None,
         client_info: Optional[ClientInfo] = None,
