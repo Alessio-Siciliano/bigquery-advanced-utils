@@ -237,3 +237,40 @@ class DataTransferClient(DataTransferServiceClient):
                 self.cached_transfer_configs_list,
             )
         )
+
+    def get_transfer_run_history(self, transfer_config_id: str) -> list[dict]:
+        """Retrieve all the execution history of a transfer.
+
+        Parameters
+        ----------
+        transfer_config_id : str
+            Transfer config ID.
+
+        Returns
+        -------
+        list[dict]
+            List where each element is a dictionary of a single run.
+        """
+
+        response = self.list_transfer_runs(
+            parent=self.parent + "/transferConfigs/" + transfer_config_id
+        )
+
+        # Get the dictionary
+        runs = []
+        for run in response:
+            runs.append(
+                {
+                    "run_time": run.schedule_time,
+                    "start_time": run.start_time,
+                    "end_time": run.end_time,
+                    "state": run.state.name,
+                    "error_message": (
+                        run.error_status.message
+                        if run.error_status.message
+                        else None
+                    ),
+                }
+            )
+
+        return runs
