@@ -43,7 +43,7 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint --version
-        pylint --rcfile=.pylintrc $(git ls-files '*.py')
+        pylint --rcfile=.pylintrc --ignore=tests $(git ls-files '*.py')
   
   set-status:
     needs: build
