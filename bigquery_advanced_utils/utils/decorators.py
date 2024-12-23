@@ -89,3 +89,14 @@ def ensure_bigquery_instance(func: Callable) -> Callable:
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def run_once(method):
+    def wrapper(self, *args, **kwargs):
+        if not getattr(self, "_initialized", False):
+            result = method(self, *args, **kwargs)
+            self._initialized = True
+            return result
+        return None
+
+    return wrapper

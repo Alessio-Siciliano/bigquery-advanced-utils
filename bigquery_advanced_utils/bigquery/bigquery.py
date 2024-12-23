@@ -37,13 +37,15 @@ from bigquery_advanced_utils.utils.constants import (
     OutputFileFormat,
     PermissionActionTypes,
 )
-from bigquery_advanced_utils.utils import AbstractClient
+from bigquery_advanced_utils.utils import SingletonBase
+from bigquery_advanced_utils.utils.decorators import run_once
 
 
-class BigQueryClient(bigquery.Client, AbstractClient):
+class BigQueryClient(bigquery.Client, SingletonBase):
     """Singleton BigQuery Client class (child of the original client)"""
 
-    def _initialize(self, *args, **kwargs):
+    @run_once
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _add_permission(

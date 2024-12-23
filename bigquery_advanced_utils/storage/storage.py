@@ -4,14 +4,15 @@ import csv
 from typing import Any
 from google.cloud.storage import Client  # type: ignore
 from bigquery_advanced_utils.utils import SingletonBase
-from bigquery_advanced_utils.utils import AbstractClient
+from bigquery_advanced_utils.utils.decorators import run_once
 
 
 # in tutti gli altri file la richiamo così "gcs_instance = GoogleCloudStorage()" (dopo aver messo il decoratore)
-class CloudStorageClient(Client, SingletonBase, AbstractClient):
+class CloudStorageClient(Client, SingletonBase):
     """Singleton Cloud Storage Client class (child of the original client)"""
 
-    def _initialize(self, *args: Any, **kwargs: Any) -> None:
+    @run_once
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def _process_csv(self, bucket_name: str, blob_name: str) -> None:

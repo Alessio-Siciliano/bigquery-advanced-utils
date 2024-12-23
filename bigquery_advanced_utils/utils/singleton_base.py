@@ -32,12 +32,14 @@ class SingletonBase:
                             "Creating a new %s instance.", cls.__name__
                         )
                         instance = super().__new__(cls)
+
                         # instance.__init__(*args, **kwargs)
-                        instance._initialize(  # type: ignore # pylint: disable=no-member
-                            *args,
-                            **kwargs,
-                        )
+                        # instance._initialize(  # type: ignore # pylint: disable=no-member
+                        #    *args,
+                        #    **kwargs,
+                        # )
                         cls._instances[cls] = instance
+                        cls._instances[cls]._initialized = False
 
                         logging.info(
                             "%s instance successfully initialized.",

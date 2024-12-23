@@ -13,10 +13,14 @@ OUTPUT_FILE_FORMAT = {
 }
 
 # Regex patterns
-# MATCHING_RULE_TABLE_REF_ID = r"projects\/[a-zA-Z0-9-_]+\/datasets\/[a-zA-Z-_]+\/tables\/[a-zA-Z0-9-_]+"  # pylint: disable=line-too-long
+MATCHING_PROJECT_LOCATION = r"projects\/([^\/]+)\/locations\/([^\/]+)"
 MATCHING_RULE_TABLE_REF_ID = (
     r"projects\/([^\/]+)\/datasets\/([^\/]+)\/tables\/([^\/]+)"
 )
+MATCHING_RULE_TRANSFER_CONFIG_ID = (
+    MATCHING_PROJECT_LOCATION + r"\/transferConfigs\/([^\/]+)"
+)
+
 # Literal
 PartitionTimeGranularities = Literal["HOUR", "DAY", "MONTH", "YEAR"]
 OutputFileFormat = Literal["CSV", "JSON", "AVRO"]
