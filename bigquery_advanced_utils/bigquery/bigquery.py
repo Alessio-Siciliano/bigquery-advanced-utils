@@ -15,7 +15,6 @@ Usage:
 """
 
 import logging
-import threading
 from typing import (
     Optional,
     Dict,
@@ -38,45 +37,14 @@ from bigquery_advanced_utils.utils.constants import (
     OutputFileFormat,
     PermissionActionTypes,
 )
+from bigquery_advanced_utils.utils import AbstractClient
 
 
-class BigQueryClient(bigquery.Client):
+class BigQueryClient(bigquery.Client, AbstractClient):
     """Singleton BigQuery Client class (child of the original client)"""
 
-    _instance: Optional["BigQueryClient"] = None
-    _lock: threading.Lock = threading.Lock()
-
-    def __new__(cls, *args, **kwargs) -> "BigQueryClient":
-        if cls._instance is None:
-            with cls._lock:  # Ensure thread safety
-                if cls._instance is None:  # Double-checked locking
-                    try:
-                        logging.debug(
-                            "Creating a new BigQueryClient instance."
-                        )
-                        cls._instance = super().__new__(
-                            cls,
-                        )
-                        cls._instance.__init__(*args, **kwargs)
-                        # For test purpose:
-                        # define the variable outside the class
-                        cls._instance.project = "test-project"
-                        bigquery.Client.__init__(
-                            cls._instance, *args, **kwargs
-                        )
-                        logging.info(
-                            "BigQueryClient instance successfully initialized."
-                        )
-                    except OSError as e:
-                        logging.error(
-                            "BigQueryClient initialization error: %s", e
-                        )
-                        raise RuntimeError(
-                            "Failed to initialize BigQueryClient"
-                        ) from e
-        else:
-            logging.debug("Reusing existing BigQueryClient instance.")
-        return cls._instance
+    def _initialize(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def _add_permission(
         self,

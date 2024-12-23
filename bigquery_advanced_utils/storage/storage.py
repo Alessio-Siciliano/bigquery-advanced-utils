@@ -1,60 +1,18 @@
 """ Module to manage all the functions regarding Cloud Storage. """
 
-import logging
 import csv
-import threading
-from typing import Optional, Any, Type
-
+from typing import Any
 from google.cloud.storage import Client  # type: ignore
+from bigquery_advanced_utils.utils import SingletonBase
+from bigquery_advanced_utils.utils import AbstractClient
 
 
 # in tutti gli altri file la richiamo così "gcs_instance = GoogleCloudStorage()" (dopo aver messo il decoratore)
-class CloudStorageClient(Client):
+class CloudStorageClient(Client, SingletonBase, AbstractClient):
     """Singleton Cloud Storage Client class (child of the original client)"""
 
-    _instance: Optional["CloudStorageClient"] = None
-    _lock: threading.Lock = threading.Lock()
-
-    def __new__(
-        cls: Type["CloudStorageClient"], *args: Any, **kwargs: Any
-    ) -> "CloudStorageClient":
-        if cls._instance is None:
-            with cls._lock:  # Ensure thread safety
-                if cls._instance is None:  # Double-checked locking
-                    try:
-                        logging.debug(
-                            "Creating a new CloudStorageClient instance."
-                        )
-                        cls._instance = super().__new__(
-                            cls,
-                        )
-                        cls._instance.__init__(*args, **kwargs)  # type: ignore
-                        Client.__init__(cls._instance, *args, **kwargs)
-                        logging.info(
-                            "CloudStorageClient instance "
-                            "successfully initialized."
-                        )
-                    except OSError as e:
-                        logging.error(
-                            "CloudStorageClient initialization error: %s", e
-                        )
-                        raise RuntimeError(
-                            "Failed to initialize CloudStorageClient"
-                        ) from e
-        else:
-            logging.debug("Reusing existing CloudStorageClient instance.")
-        return cls._instance
-
-    def __init__(self, *args: tuple, **kwargs: dict) -> None:
-        if not hasattr(self, "initialized"):
-            try:
-                logging.debug("Starting the CloudStorageClient")
-                super().__init__(*args, **kwargs)
-                logging.debug("BigQueryClient successfully initialized.")
-                self.initialized = True
-            except OSError as e:
-                logging.error("CloudStorageClient initialization error: %s", e)
-                raise
+    def _initialize(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
 
     def _process_csv(self, bucket_name: str, blob_name: str) -> None:
         """Read and process a CSV file from a Google Cloud Storage bucket.
