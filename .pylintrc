@@ -285,7 +285,7 @@ max-args=80
 max-attributes=14 # original value 7
 
 # Maximum number of boolean expressions in an if statement (see R0916).
-max-bool-expr=6 #5
+max-bool-expr=5
 
 # Maximum number of branch for function / method body.
 max-branches=12
@@ -323,7 +323,7 @@ overgeneral-exceptions=builtins.BaseException,builtins.Exception
 expected-line-ending-format=
 
 # Regexp for a line that is allowed to be longer than the limit.
-ignore-long-lines=^\s*(# )?<?https?://\S+>?$
+ignore-long-lines=^\s*(#\s.*)?(<?https?:\/\/\S+>?)?$ #"^\s*(# )?<?https?://\S+>?$"
 
 # Number of spaces of indent required inside a hanging or continued line.
 indent-after-paren=4

@@ -1,15 +1,46 @@
+""" Module with all decorators. """
+
 from typing import Callable
-from bigquery_advanced_utils.storage.storage import GoogleCloudStorage
+from bigquery_advanced_utils.storage.storage import CloudStorageClient
 from bigquery_advanced_utils.bigquery.bigquery import BigQueryClient
 
 
-def ensure_storage_instance(func: Callable) -> Callable:
-    """
-    Decorator that ensures the Google Cloud Storage instance is valid.
+def ensure_cloud_storage_instance(func: Callable) -> Callable:
+    """Decorator that ensures the Google Cloud Storage instance is valid.
+
+    Parameters
+    -------
+    func: Callable
+        Function.
+
+    Return
+    -------
+    Callable
+        Function.
     """
 
-    def wrapper(*args, **kwargs):
-        gcs_instance = GoogleCloudStorage()
+    def wrapper(*args, **kwargs) -> Callable:
+        """Wrapper.
+
+        Parameters
+        -------
+        *args
+            Positional arguments.
+
+        **kwargs
+            Keyword arguments.
+
+        Return
+        -------
+        Callable
+            A wrapped execution function.
+
+        Raises
+        ------
+        ValueError
+            Client not valid.
+        """
+        gcs_instance = CloudStorageClient()
         if not gcs_instance:
             raise ValueError("Google Cloud Storage client is not valid.")
         return func(*args, **kwargs)
@@ -33,6 +64,14 @@ def ensure_bigquery_instance(func: Callable) -> Callable:
 
     def wrapper(*args, **kwargs) -> Callable:
         """Wrapper.
+
+        Parameters
+        -------
+        *args
+            Positional arguments.
+
+        **kwargs
+            Keyword arguments.
 
         Return
         -------

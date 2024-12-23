@@ -370,8 +370,7 @@ class BigQueryClient(bigquery.Client):
                     )
                 project_id, dataset_id, table_id = full_path.split(".")
             elif len(args) == 2:
-                # If there are two positional arguments:
-                # assign them to dataset and table
+                # If there are two positional arguments, assign them to dataset and table
                 dataset_id, table_id = args
                 project_id = kwargs.get(
                     "project_id", self.project
@@ -380,8 +379,8 @@ class BigQueryClient(bigquery.Client):
                 # If there are three positional arguments:
                 # assign them to project, dataset, and table
                 project_id, dataset_id, table_id = args
-            elif len(args) == 0:
-                # Se non ci sono parametri posizionali, usa solo i keyword
+            elif not args:
+                # If no args
                 project_id = kwargs.get("project_id", self.project)
                 dataset_id = kwargs.get("dataset_id")
                 table_id = kwargs.get("table_id")
@@ -392,14 +391,7 @@ class BigQueryClient(bigquery.Client):
                 )
 
             # Ensure all required parameters are provided
-            if (
-                not project_id
-                or project_id == ""
-                or not dataset_id
-                or dataset_id == ""
-                or not table_id
-                or table_id == ""
-            ):
+            if not project_id or not dataset_id or not table_id:
                 raise ValueError(
                     "You must provide project, dataset, and table."
                 )
