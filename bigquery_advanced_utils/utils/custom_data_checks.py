@@ -148,7 +148,7 @@ class CustomDataChecks:
         row: list,
         header: list,
         column_sums: list,  # pylint: disable=unused-argument
-        columns_to_test: Optional[list] | None = None,
+        columns_to_test: Optional[list] = None,
         min_value: Optional[int | float] = None,
         max_value: Optional[int | float] = None,
     ) -> None:

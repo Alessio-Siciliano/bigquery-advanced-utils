@@ -133,7 +133,7 @@ class String:
         """
         if not gcs_uri.startswith("gs://"):
             raise ValueError("Path must start with 'gs://'")
-        parts = gcs_uri[5:].split("/", 1)
-        bucket_name = parts[0]
-        folder = parts[1] if len(parts) > 1 else ""
+        path_parts = gcs_uri.replace("gs://", "").split("/")
+        bucket_name = path_parts[0]
+        folder = "/".join(path_parts[1:-1]) if len(path_parts) > 1 else ""
         return bucket_name, folder

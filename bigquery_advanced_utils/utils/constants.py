@@ -6,26 +6,64 @@ from google.cloud.bigquery.job import SourceFormat
 # General constants
 DEFAULT_LOG_LEVEL = "DEBUG"  # Default log level for the application
 
-# Logging messages
-LOG_SUCCESS = "SUCCESS"  # Log message for successful operations
-LOG_FAILED = "FAILED"  # Log message for failed operations
-LOG_UNHANDLED_EXCEPTION = (
-    "UNHANDLED EXCEPTION"  # Log message for unhandled exceptions
-)
-
-# Bigquery
-IAM_TO_DATASET_ROLES = {
-    "roles/bigquery.dataViewer": "READER",
-    "roles/bigquery.dataEditor": "WRITER",
-    "roles/bigquery.dataOwner": "OWNER",
-}
 OUTPUT_FILE_FORMAT = {
     "CSV": SourceFormat.CSV,
     "JSON": SourceFormat.NEWLINE_DELIMITED_JSON,
     "AVRO": SourceFormat.AVRO,
 }
 
+# Regex patterns
+# MATCHING_RULE_TABLE_REF_ID = r"projects\/[a-zA-Z0-9-_]+\/datasets\/[a-zA-Z-_]+\/tables\/[a-zA-Z0-9-_]+"  # pylint: disable=line-too-long
+MATCHING_RULE_TABLE_REF_ID = (
+    r"projects\/([^\/]+)\/datasets\/([^\/]+)\/tables\/([^\/]+)"
+)
 # Literal
 PartitionTimeGranularities = Literal["HOUR", "DAY", "MONTH", "YEAR"]
 OutputFileFormat = Literal["CSV", "JSON", "AVRO"]
 PermissionActionTypes = Literal["ADD", "REMOVE", "UPDATE"]
+
+# Cloud Logging
+FILTER_ACCESS_LOGS = """
+    -protoPayload.methodName="jobservice.jobcompleted"
+    -protoPayload.methodName="google.logging.v2.LoggingServiceV2.ReadLogEntriesLegacy"
+    resource.type="bigquery_resource"           
+    -protoPayload.serviceData.jobInsertRequest.resource.jobConfiguration.dryRun="true"
+    -protoPayload.methodName="jobservice.getqueryresults"
+    -protoPayload.methodName="tabledataservice.list"
+    -protoPayload.methodName="google.logging.v2.LoggingServiceV2.AggregateLogs"
+    -protoPayload.methodName="google.logging.v2.LoggingServiceV2.ListResourceKeys"
+    -protoPayload.methodName="GetResourceBillingInfo"
+    (
+        -protoPayload.serviceData.jobInsertResponse.resource.jobName.jobId = ""
+        OR (
+            NOT protoPayload.serviceData.jobInsertResponse.resource.jobName.jobId:*
+            and protoPayload.serviceData.jobQueryResponse.job.jobConfiguration.labels.requestor="looker_studio"
+        )
+        OR (
+            NOT protoPayload.serviceData.jobInsertResponse.resource.jobName.jobId:*
+            and protoPayload.serviceData.jobQueryResponse.job.jobName.jobId:*
+        )
+    )
+    -- If LookerStudio removes the query that hit the cache
+    (
+        (
+            protoPayload.serviceData.jobQueryResponse.job.jobConfiguration.labels.requestor="looker_studio"
+            AND protoPayload.serviceData.jobQueryResponse.job.jobStatistics.referencedTables:*
+        )
+        OR (
+            NOT protoPayload.serviceData.jobQueryResponse.job.jobConfiguration.labels.requestor="looker_studio"
+        )
+        OR (
+            NOT protoPayload.serviceData.jobQueryResponse.job.jobConfiguration.labels.requestor:*
+        )
+    )
+
+    -protoPayload.serviceData.jobInsertResponse.resource.jobConfiguration.query.statementType="SCRIPT"
+"""
+SOURCE_ORIGIN_TYPE = {
+    "looker_studio": "Looker Studio",
+    "datatransfer": "Datatransfer",
+    "power_bi": "Power BI",
+    "query_api": "Query / API",
+    "other": "Other",
+}
