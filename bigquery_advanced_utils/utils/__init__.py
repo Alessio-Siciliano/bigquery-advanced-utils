@@ -12,5 +12,3 @@ from .custom_data_checks import CustomDataChecks
 from .logger import setup_logger
 
 from .singleton_base import SingletonBase
-
-from .abstract import AbstractClient

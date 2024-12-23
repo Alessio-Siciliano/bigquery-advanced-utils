@@ -16,7 +16,7 @@ from google.cloud.bigquery_datatransfer import DataTransferServiceClient
 from bigquery_advanced_utils.datatransfer.extended_transfer_config import (
     ExtendedTransferConfig,
 )
-from bigquery_advanced_utils.utils import AbstractClient, SingletonBase
+from bigquery_advanced_utils.utils import SingletonBase
 from bigquery_advanced_utils.utils.decorators import run_once
 
 # from bigquery_advanced_utils.utils.constants import (

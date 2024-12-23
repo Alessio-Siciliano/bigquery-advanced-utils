@@ -91,11 +91,15 @@ def ensure_bigquery_instance(func: Callable) -> Callable:
     return wrapper
 
 
-def run_once(method):
-    def wrapper(self, *args, **kwargs):
+def run_once(  # pylint: disable=missing-return-doc,missing-function-docstring
+    method,
+) -> Callable:
+    def wrapper(  # pylint: disable=missing-return-doc
+        self, *args, **kwargs
+    ) -> Callable | None:
         if not getattr(self, "_initialized", False):
             result = method(self, *args, **kwargs)
-            self._initialized = True
+            self._initialized = True  # pylint: disable=protected-access
             return result
         return None
 
