@@ -2,7 +2,7 @@
 
 import threading
 import logging
-from typing import TypeVar, Dict, Type, cast
+from typing import TypeVar, Dict, Type, cast, Any
 
 
 T = TypeVar("T", bound="SingletonBase")
@@ -14,7 +14,7 @@ class SingletonBase:  # pylint: disable=too-few-public-methods
     _instances: Dict[Type["SingletonBase"], "SingletonBase"] = {}
     _lock: threading.Lock = threading.Lock()
 
-    def __new__(cls: Type[T]) -> T:
+    def __new__(cls: Type[T], *args: Any, **kwargs: Any) -> T:
         """Read and process a CSV file from a Google Cloud Storage bucket.
 
         Parameters
@@ -32,7 +32,7 @@ class SingletonBase:  # pylint: disable=too-few-public-methods
                             "Creating a new %s instance.", cls.__name__
                         )
                         instance = super().__new__(cls)
-                        # instance.__init__(*args, **kwargs)  # type: ignore
+                        instance.__init__(*args, **kwargs)  # type: ignore
                         # instance._initialize(
                         #    *args,
                         #    **kwargs,
