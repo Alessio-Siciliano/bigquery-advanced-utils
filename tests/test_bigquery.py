@@ -6,9 +6,7 @@ from google.cloud.exceptions import GoogleCloudError
 from google.api_core.exceptions import NotFound
 from google.auth.exceptions import RefreshError
 from google.cloud.bigquery.job import QueryJobConfig
-from google.cloud.bigquery import (
-    AccessEntry,
-)
+from google.cloud.bigquery import AccessEntry, Client
 from bigquery_advanced_utils.bigquery import BigQueryClient
 
 
@@ -507,24 +505,43 @@ class TestUpdatePermission(unittest.TestCase):
         self.assertEqual(len(self.bindings), 0)
 
 
+class MockBindingsList(list):
+    def append(self, item):
+        print(f"Mock append called with item={item}")
+        super().append(item)
+
+
 class TestManageRoles(unittest.TestCase):
-
     def setUp(self):
-        self.client = BigQueryClient(project="test_project")
+        # Mock del costruttore __init__ di BigQueryClient per evitare il caricamento delle credenziali
+        patch("google.cloud.bigquery.Client.__init__", lambda x: None).start()
 
-    @patch("google.cloud.bigquery.Client.get_table")
-    @patch("google.cloud.bigquery.Client.get_iam_policy")
-    @patch("google.cloud.bigquery.Client.set_iam_policy")
-    def test_add_permission_to_table(
-        self, mock_set_iam_policy, mock_get_iam_policy, mock_get_table
-    ):
-        mock_table = MagicMock()
-        mock_policy = MagicMock()
-        mock_policy.bindings = []
+        # Mock dei metodi di BigQueryClient
+        self.mock_get_table = patch(
+            "google.cloud.bigquery.Client.get_table"
+        ).start()
+        self.mock_get_iam_policy = patch(
+            "google.cloud.bigquery.Client.get_iam_policy"
+        ).start()
+        self.mock_set_iam_policy = patch(
+            "google.cloud.bigquery.Client.set_iam_policy"
+        ).start()
 
-        mock_get_table.return_value = mock_table
-        mock_get_iam_policy.return_value = mock_policy
+        # Creazione di una versione mockata del Client
+        self.client = BigQueryClient()
+        self.mock_table = MagicMock()
+        self.mock_policy = MagicMock()
+        self.mock_policy.bindings = MockBindingsList()
 
+        # Mock dei ritorni dei metodi
+        self.mock_get_table.return_value = self.mock_table
+        self.mock_get_iam_policy.return_value = self.mock_policy
+
+    def tearDown(self):
+        # Interrompi il patching dopo il test
+        patch.stopall()
+
+    def test_add_permission_to_table(self):
         resource_id = "project.dataset.table"
         user_permissions = [
             {
@@ -535,13 +552,18 @@ class TestManageRoles(unittest.TestCase):
         action = "ADD"
 
         self.client.manage_roles(resource_id, user_permissions, action)
-
         expected_binding = {
             "role": "roles/bigquery.dataViewer",
             "members": {"user:test@example.com"},
         }
-        self.assertIn(expected_binding, mock_policy.bindings)
-        mock_set_iam_policy.assert_called_once_with(mock_table, mock_policy)
+
+        # Verifica che append sia stato chiamato con expected_binding
+        self.assertIn(expected_binding, self.mock_policy.bindings)
+
+        # Verifica che set_iam_policy sia stato chiamato
+        self.mock_set_iam_policy.assert_called_once_with(
+            self.mock_table, self.mock_policy
+        )
 
     @patch("google.cloud.bigquery.Client.get_dataset")
     @patch("google.cloud.bigquery.Client.update_dataset")
@@ -575,13 +597,11 @@ class TestManageRoles(unittest.TestCase):
             mock_dataset, ["access_entries"]
         )
 
-    @patch("google.cloud.bigquery.Client.get_table")
     @patch("google.cloud.bigquery.Client.get_iam_policy")
     @patch("google.cloud.bigquery.Client.set_iam_policy")
     def test_update_permission_on_table(
-        self, mock_set_iam_policy, mock_get_iam_policy, mock_get_table
+        self, mock_set_iam_policy, mock_get_iam_policy
     ):
-        mock_table = MagicMock()
         mock_policy = MagicMock()
         mock_policy.bindings = [
             {
@@ -590,7 +610,6 @@ class TestManageRoles(unittest.TestCase):
             }
         ]
 
-        mock_get_table.return_value = mock_table
         mock_get_iam_policy.return_value = mock_policy
 
         resource_id = "project.dataset.table"
@@ -610,7 +629,9 @@ class TestManageRoles(unittest.TestCase):
         }
         self.assertIn(expected_binding, mock_policy.bindings)
         self.assertEqual(len(mock_policy.bindings), 2)
-        mock_set_iam_policy.assert_called_once_with(mock_table, mock_policy)
+        mock_set_iam_policy.assert_called_once_with(
+            self.mock_table, mock_policy
+        )
 
     @patch("google.cloud.bigquery.Client.get_dataset")
     @patch("google.cloud.bigquery.Client.update_dataset")
@@ -690,11 +711,9 @@ class TestManageRoles(unittest.TestCase):
         ]
         action = "ADD"
 
-        mock_table = MagicMock()
-        mock_policy = MagicMock()
-        mock_policy.bindings = []
-        mock_get_table.return_value = mock_table
-        mock_get_iam_policy.return_value = mock_policy
+        # mock_policy = MagicMock()
+        # mock_policy.bindings = []
+        # mock_get_iam_policy.return_value = mock_policy
 
         mock_add_permission.side_effect = Exception("Test exception")
 
