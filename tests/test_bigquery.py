@@ -137,6 +137,10 @@ class TestCheckTableExistence(unittest.TestCase):
 @patch("google.cloud.bigquery.Client.query")
 class TestSimulateQuery(unittest.TestCase):
 
+    def setUp(self):
+        self.client._location = "EU"
+        return super().setUp()
+
     @classmethod
     def setUpClass(cls):
         cls.test_project = "test_project"
@@ -155,7 +159,7 @@ class TestSimulateQuery(unittest.TestCase):
         BigQueryClient._instance = None
 
         with self.assertRaises(Exception) as context:
-            BigQueryClient().simulate_query(self.query)
+            self.client.simulate_query(self.query)
         self.assertEqual(
             str(context.exception), "Error occurred during query simulation"
         )
