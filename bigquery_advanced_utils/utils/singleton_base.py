@@ -14,7 +14,7 @@ class SingletonBase:  # pylint: disable=too-few-public-methods
     _instances: Dict[Type["SingletonBase"], "SingletonBase"] = {}
     _lock: threading.Lock = threading.Lock()
 
-    def __new__(cls: Type[T], *args: Any, **kwargs: Any) -> T:
+    def __new__(cls: Type[T]) -> T:
         """Read and process a CSV file from a Google Cloud Storage bucket.
 
         Parameters
