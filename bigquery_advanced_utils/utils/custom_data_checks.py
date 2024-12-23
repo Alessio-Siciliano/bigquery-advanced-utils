@@ -2,7 +2,7 @@
 
 import re
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 
 
 class CustomDataChecks:
@@ -149,8 +149,8 @@ class CustomDataChecks:
         header: list,
         column_sums: list,  # pylint: disable=unused-argument
         columns_to_test: Optional[list] = None,
-        min_value: Optional[int | float] = None,
-        max_value: Optional[int | float] = None,
+        min_value: Optional[Union[int, float]] = None,
+        max_value: Optional[Union[int, float]] = None,
     ) -> None:
         """Check if a column has values in the interval.
         This function allows NULL.
