@@ -2,7 +2,7 @@
 
 import threading
 import logging
-from typing import TypeVar, Dict, Type, cast, Any
+from typing import TypeVar, Dict, Type, cast
 
 
 T = TypeVar("T", bound="SingletonBase")
