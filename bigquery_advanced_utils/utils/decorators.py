@@ -1,6 +1,6 @@
 """ Module with all decorators. """
 
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 
 
 def run_once(  # pylint: disable=missing-return-doc,missing-function-docstring
@@ -8,7 +8,7 @@ def run_once(  # pylint: disable=missing-return-doc,missing-function-docstring
 ) -> Callable:
     def wrapper(  # pylint: disable=missing-return-doc
         self: Any, *args: Any, **kwargs: Any
-    ) -> Callable | None:
+    ) -> Optional[Callable]:
         if not getattr(self, "_initialized", False):
             result = method(self, *args, **kwargs)
             self._initialized = True  # pylint: disable=protected-access

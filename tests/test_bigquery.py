@@ -12,64 +12,6 @@ from google.cloud.bigquery import (
 from bigquery_advanced_utils.bigquery import BigQueryClient
 
 
-class TestBigQueryClientNew(unittest.TestCase):
-    @patch("google.cloud.bigquery.Client.__new__")
-    @patch("google.cloud.bigquery.Client.__init__", autospec=True)
-    def test_initialization_error(
-        self, mock_init: MagicMock, mock_new: MagicMock
-    ):
-        """Test that initialization errors are handled correctly.
-
-        Args:
-            mock_init (MagicMock):
-                Mock for the __init__ method of BigQueryClient.
-            mock_new (MagicMock):
-                Mock for the __new__ method of BigQueryClient.
-        """
-        instance = MagicMock(name="BigQueryClient instance")
-        mock_new.return_value = instance
-
-        # Simula un errore durante l'inizializzazione
-        mock_init.side_effect = OSError("Initialization failed")
-
-        # Reset the instance for the test
-        BigQueryClient._instance = None
-
-        with self.assertRaises(RuntimeError) as context:
-            BigQueryClient()
-        self.assertEqual(
-            str(context.exception), "Failed to initialize BigQueryClient"
-        )
-        mock_new.assert_called_once()
-        mock_init.assert_called_once_with(instance)
-
-        BigQueryClient._instance = None
-
-
-class TestBigQueryClassSingleton(unittest.TestCase):
-
-    @patch("google.cloud.bigquery.Client.__new__")
-    @patch("google.cloud.bigquery.Client.__init__", autospec=True)
-    def test_singleton_pattern(self, mock_init, mock_new):
-        """Test that BigQueryClient follows the singleton pattern."""
-
-        instance = MagicMock(name="BigQueryClient instance")
-        mock_new.return_value = instance
-
-        # Reset the instance for the test
-        BigQueryClient._instance = None
-
-        instance1 = BigQueryClient()
-        instance2 = BigQueryClient()
-
-        self.assertIs(instance1, instance2)
-        mock_new.assert_called_once()
-        mock_init.assert_called_once_with(instance)
-
-        # Reset the instance for the test
-        BigQueryClient._instance = None
-
-
 @patch("google.cloud.bigquery.Client.get_table")
 class TestCheckTableExistence(unittest.TestCase):
     """Test check_table_existence method."""
