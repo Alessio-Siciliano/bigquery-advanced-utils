@@ -45,7 +45,7 @@ class String:
         if (
             string is None
             or not isinstance(chars_to_remove, list)
-            or len(chars_to_remove) == 0
+            or not chars_to_remove
         ):
             raise InvalidArgumentToFunction()
 
