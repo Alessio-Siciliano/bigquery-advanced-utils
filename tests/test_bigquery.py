@@ -226,9 +226,17 @@ class TestSimulateQuery(unittest.TestCase):
 class TestAddPermission(unittest.TestCase):
 
     def setUp(self):
+        # Mock del costruttore __init__ di BigQueryClient per evitare il caricamento delle credenziali
+        patch("google.cloud.bigquery.Client.__init__", lambda x: None).start()
+
+        # Creazione di una versione mockata del Client
         self.client = BigQueryClient()
         self.bindings = []
         self.entries = []
+
+    def tearDown(self):
+        # Interrompi il patching dopo il test
+        patch.stopall()
 
     def test_add_table_permission(self):
         user_email = "test@example.com"
@@ -315,9 +323,17 @@ class TestAddPermission(unittest.TestCase):
 class TestRemovePermission(unittest.TestCase):
 
     def setUp(self):
+        # Mock del costruttore __init__ di BigQueryClient per evitare il caricamento delle credenziali
+        patch("google.cloud.bigquery.Client.__init__", lambda x: None).start()
+
+        # Creazione di una versione mockata del Client
         self.client = BigQueryClient()
         self.bindings = []
         self.entries = []
+
+    def tearDown(self):
+        # Interrompi il patching dopo il test
+        patch.stopall()
 
     def test_remove_table_permission(self):
         user_email = "test@example.com"
@@ -408,9 +424,17 @@ class TestRemovePermission(unittest.TestCase):
 class TestUpdatePermission(unittest.TestCase):
 
     def setUp(self):
+        # Mock del costruttore __init__ di BigQueryClient per evitare il caricamento delle credenziali
+        patch("google.cloud.bigquery.Client.__init__", lambda x: None).start()
+
+        # Creazione di una versione mockata del Client
         self.client = BigQueryClient()
         self.bindings = []
         self.entries = []
+
+    def tearDown(self):
+        # Interrompi il patching dopo il test
+        patch.stopall()
 
     def test_update_table_permission(self):
         user_email = "test@example.com"
@@ -733,7 +757,15 @@ class TestManageRoles(unittest.TestCase):
 class TestExportDataToStorage(unittest.TestCase):
 
     def setUp(self):
+        # Mock del costruttore __init__ di BigQueryClient per evitare il caricamento delle credenziali
+        patch("google.cloud.bigquery.Client.__init__", lambda x: None).start()
+
+        # Creazione di una versione mockata del Client
         self.client = BigQueryClient()
+
+    def tearDown(self):
+        # Interrompi il patching dopo il test
+        patch.stopall()
 
     def test_export_data_to_storage_csv(self, mock_extract_table):
         """Test exporting data to CSV format."""
