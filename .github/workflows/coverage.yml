@@ -47,13 +47,14 @@ jobs:
 
       # Upload coverage report
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
-          fail_ci_if_error: true
+          slug: Alessio-Siciliano/bigquery-advanced-utils
+        continue-on-error: true
 
-      # Enforce 100% coverage (optional)
+      # Enforce 100% coverage
       - name: Enforce coverage threshold
         run: |
           coverage report --fail-under=100
