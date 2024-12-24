@@ -13,12 +13,12 @@ OUTPUT_FILE_FORMAT = {
 }
 
 # Regex patterns
-MATCHING_PROJECT_LOCATION = r"projects\/([^\/]+)\/locations\/([^\/]+)"
+MATCHING_RULE_PROJECT_LOCATION = r"projects\/([^\/]+)\/locations\/([^\/]+)"
 MATCHING_RULE_TABLE_REF_ID = (
     r"projects\/([^\/]+)\/datasets\/([^\/]+)\/tables\/([^\/]+)"
 )
 MATCHING_RULE_TRANSFER_CONFIG_ID = (
-    MATCHING_PROJECT_LOCATION + r"\/transferConfigs\/([^\/]+)"
+    MATCHING_RULE_PROJECT_LOCATION + r"\/transferConfigs\/([^\/]+)"
 )
 
 # Literal
