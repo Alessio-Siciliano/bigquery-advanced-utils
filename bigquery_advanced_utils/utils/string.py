@@ -19,8 +19,9 @@ class String:
     # REGEX pattern to identify all non alphanumeric, ., -,_
     NON_ALPHANUMERIC_CHARS = "[^a-zA-Z0-9._\\s-]"
 
+    @staticmethod
     def remove_chars_from_string(
-        self, string: str, chars_to_remove: list[str]
+        string: str, chars_to_remove: list[str]
     ) -> str:
         """Removes some special characters from a given string.
 
@@ -51,8 +52,9 @@ class String:
 
         return re.sub("[" + "".join(chars_to_remove) + "]", "", string)
 
+    @staticmethod
     def remove_comments_from_string(
-        self, string: str, dialect: str = "standard_sql"
+        string: str, dialect: str = "standard_sql"
     ) -> str:
         """Removes all comments and the text inside from a given text string.
 
@@ -77,9 +79,10 @@ class String:
         """
         if string is None:
             raise InvalidArgumentToFunction()
-        return re.sub(self.COMMENTS_PATTERNS[dialect], "", string)
+        return re.sub(String.COMMENTS_PATTERNS[dialect], "", string)
 
-    def extract_tables_from_query(self, string: str) -> list[str]:
+    @staticmethod
+    def extract_tables_from_query(string: str) -> list[str]:
         """Extract all source tables from a query in a string.
 
         Parameters
@@ -101,16 +104,19 @@ class String:
             raise InvalidArgumentToFunction()
 
         # Clear the input query, removing all comments and special chars
-        cleaned_query = self.remove_comments_from_string(string)
-        cleaned_query = re.sub(self.NON_ALPHANUMERIC_CHARS, "", cleaned_query)
+        cleaned_query = String.remove_comments_from_string(string)
+        cleaned_query = re.sub(
+            String.NON_ALPHANUMERIC_CHARS, "", cleaned_query
+        )
 
         # Find all occurrences of the pattern inside the query
-        matches = re.findall(self.TABLES_PATTERN, cleaned_query)
+        matches = re.findall(String.TABLES_PATTERN, cleaned_query)
 
         # Remove duplicates with set()
         return list(set(matches))
 
-    def parse_gcs_path(self, gcs_uri: str) -> Tuple[str, str]:
+    @staticmethod
+    def parse_gcs_path(gcs_uri: str) -> Tuple[str, str]:
         """Parses a GCS URI and returns the bucket name and path.
 
         Parameters
