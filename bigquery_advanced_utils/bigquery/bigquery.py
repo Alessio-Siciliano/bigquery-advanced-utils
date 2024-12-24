@@ -46,7 +46,7 @@ class BigQueryClient(bigquery.Client, SingletonBase):
 
     @run_once
     def __init__(self, *args, **kwargs):
-        logging.debug("Ini BigQueryClient")
+        logging.debug("Init BigQueryClient")
         super().__init__(*args, **kwargs)
 
     def _add_permission(
