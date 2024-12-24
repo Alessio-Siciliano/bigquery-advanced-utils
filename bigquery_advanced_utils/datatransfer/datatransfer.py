@@ -3,7 +3,7 @@
 import re
 import logging
 
-from typing import Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union, TYPE_CHECKING
 from google.cloud.bigquery_datatransfer import DataTransferServiceClient
 
 from google.cloud.bigquery_datatransfer_v1.types.datatransfer import (
@@ -13,9 +13,6 @@ from google.api_core.retry import Retry
 from google.api_core.gapic_v1.method import _MethodDefault
 
 from bigquery_advanced_utils.utils.string import String
-from bigquery_advanced_utils.bigquery import BigQueryClient
-
-# from bigquery_advanced_utils.bigquery.bigquery import BigQueryClient
 from bigquery_advanced_utils.datatransfer.extended_transfer_config import (
     ExtendedTransferConfig,
 )
@@ -24,10 +21,14 @@ from bigquery_advanced_utils.utils.decorators import (
     run_once,
     ensure_bigquery_instance,
 )
-
 from bigquery_advanced_utils.utils.constants import (
     MATCHING_RULE_PROJECT_LOCATION,
 )
+
+if TYPE_CHECKING:
+    from bigquery_advanced_utils.bigquery import (
+        BigQueryClient,
+    )  # Only for type checks
 
 
 class DataTransferClient(DataTransferServiceClient, SingletonBase):
@@ -48,7 +49,7 @@ class DataTransferClient(DataTransferServiceClient, SingletonBase):
         timeout: Optional[Union[float, object]] = None,
         metadata: Sequence[Tuple[str, str]] = (),
         additional_configs: bool = False,
-        bigquery_instance: Optional[BigQueryClient] = None,
+        bigquery_instance: Optional["BigQueryClient"] = None,
     ) -> list["ExtendedTransferConfig"]:
         """Get ALL schedule queries of the project.
 
