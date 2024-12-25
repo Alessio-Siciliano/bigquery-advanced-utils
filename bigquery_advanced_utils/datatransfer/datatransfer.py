@@ -3,7 +3,7 @@
 import re
 import logging
 
-from typing import Optional, Sequence, Tuple, Union, TYPE_CHECKING
+from typing import Optional, Sequence, Tuple, Union
 from google.cloud.bigquery_datatransfer import DataTransferServiceClient
 
 from google.cloud.bigquery_datatransfer_v1 import (
@@ -25,10 +25,9 @@ from bigquery_advanced_utils.utils.constants import (
     MATCHING_RULE_PROJECT_LOCATION,
 )
 
-if TYPE_CHECKING:
-    from bigquery_advanced_utils.bigquery import (  # pragma: no cover
-        BigQueryClient,
-    )
+from bigquery_advanced_utils.bigquery import (  # pragma: no cover
+    BigQueryClient,
+)
 
 
 class DataTransferClient(DataTransferServiceClient, SingletonBase):
