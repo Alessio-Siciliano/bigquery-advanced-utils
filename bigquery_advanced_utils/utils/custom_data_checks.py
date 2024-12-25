@@ -3,7 +3,6 @@
 import re
 from datetime import datetime
 from typing import Optional, Union
-from bigquery_advanced_utils.utils import String
 
 
 class CustomDataChecks:
@@ -277,9 +276,9 @@ class CustomDataChecks:
         #    raise ValueError(f"Pattern regex is not valid: {e}") from e
 
         try:
-            String.is_regex_pattern_valid(pattern=regex_pattern)
-        except ValueError as e:
-            raise e
+            re.compile(regex_pattern)
+        except re.error as e:
+            raise ValueError(f"Pattern regex is not valid: {e}") from e
 
         for column_name in columns_to_test:
             if column_name not in header:

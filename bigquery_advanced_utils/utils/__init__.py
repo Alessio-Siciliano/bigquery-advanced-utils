@@ -7,7 +7,7 @@ from .custom_exceptions import (
 )
 from .numeric import Numeric
 
-# from .custom_data_checks import CustomDataChecks
+from .custom_data_checks import CustomDataChecks
 
 from .logger import setup_logger
 
