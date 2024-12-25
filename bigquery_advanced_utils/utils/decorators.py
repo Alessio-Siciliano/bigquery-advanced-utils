@@ -1,44 +1,9 @@
 """ Module with all decorators. """
 
 # pylint: disable=import-outside-toplevel, protected-access, missing-param-doc, missing-return-doc
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Optional, Type, List
 from functools import wraps
-import logging
-
-
-def ensure_bigquery_instance(func: Callable) -> Callable:
-    """Decorator"""
-
-    @wraps(func)
-    def wrapper(self, *args: Any, **kwargs: Any) -> Any:
-        from bigquery_advanced_utils.bigquery import (
-            BigQueryClient,
-        )
-
-        if (
-            not hasattr(self, "_bigquery_instance")
-            or self._bigquery_instance is None
-        ):
-            if BigQueryClient in BigQueryClient._instances:
-                # Usa l'istanza esistente di BigQuery dal dizionario _instances
-                self._bigquery_instance = BigQueryClient._instances[
-                    BigQueryClient
-                ]
-                logging.debug("Using existing BigQuery instance.")
-            else:
-                # Altrimenti, crea un'istanza di BigQuery
-                self._bigquery_instance = BigQueryClient()
-                logging.debug("BigQuery instance created inside Storage.")
-        else:
-            logging.debug(
-                "BigQuery instance already exists, reusing the same instance."
-            )
-
-        return func(
-            self, *args, bigquery_instance=self._bigquery_instance, **kwargs
-        )
-
-    return wrapper
+from bigquery_advanced_utils.utils import SingletonBase
 
 
 def run_once(  # pylint: disable=missing-return-doc,missing-function-docstring
@@ -54,3 +19,25 @@ def run_once(  # pylint: disable=missing-return-doc,missing-function-docstring
         return None
 
     return wrapper
+
+
+def singleton_instance(class_types: List[Type[SingletonBase]]) -> Callable:
+    """Decorator to get the singleton instance of a specific class.
+
+    Parameters:
+        class_types: The classes from which you want to get
+                     the singleton instance
+    """
+
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(func)
+        def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
+            # Get the singleton instances of the classes passed as parameters
+            instances = {cls.__name__: cls() for cls in class_types}
+
+            # Pass the instances as keyword arguments to the function
+            return func(self, *args, **kwargs, **instances)
+
+        return wrapper
+
+    return decorator

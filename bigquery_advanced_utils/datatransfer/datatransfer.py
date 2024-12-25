@@ -19,16 +19,15 @@ from bigquery_advanced_utils.datatransfer.extended_transfer_config import (
 from bigquery_advanced_utils.utils import SingletonBase
 from bigquery_advanced_utils.utils.decorators import (
     run_once,
-    ensure_bigquery_instance,
+    singleton_instance,
 )
 from bigquery_advanced_utils.utils.constants import (
     MATCHING_RULE_PROJECT_LOCATION,
 )
 
-if TYPE_CHECKING:
-    from bigquery_advanced_utils.bigquery import (  # pragma: no cover
-        BigQueryClient,
-    )  # Only for type checks
+from bigquery_advanced_utils.bigquery import (  # pragma: no cover
+    BigQueryClient,
+)
 
 
 class DataTransferClient(DataTransferServiceClient, SingletonBase):
@@ -40,7 +39,7 @@ class DataTransferClient(DataTransferServiceClient, SingletonBase):
         super().__init__(*args, **kwargs)
         self.cached_transfer_configs_list: list[ExtendedTransferConfig] = []
 
-    @ensure_bigquery_instance
+    @singleton_instance([BigQueryClient])
     def get_transfer_configs(
         self,
         request: Optional[Union[ListTransferConfigsRequest, dict]] = None,
@@ -49,7 +48,7 @@ class DataTransferClient(DataTransferServiceClient, SingletonBase):
         timeout: Optional[Union[float, object]] = None,
         metadata: Sequence[Tuple[str, str]] = (),
         additional_configs: bool = False,
-        bigquery_instance: Optional["BigQueryClient"] = None,
+        **kwargs,
     ) -> list["ExtendedTransferConfig"]:
         """Get ALL schedule queries of the project.
 
@@ -78,8 +77,8 @@ class DataTransferClient(DataTransferServiceClient, SingletonBase):
             this field makes another request to get more informations.
             Default value is False to avoid useless requests.
 
-        bigquery_instance:
-            Bigquery instance
+        **kwargs: Optional
+            List of instances.
 
         Returns
         -------
@@ -129,7 +128,9 @@ class DataTransferClient(DataTransferServiceClient, SingletonBase):
                     transfer_config_email.email
                 )
 
-                simulated_attributes = bigquery_instance.simulate_query(
+                simulated_attributes = kwargs.get(
+                    "BigQueryClient"
+                ).simulate_query(
                     transfer_config.base_config.params.get("query")
                 )
                 transfer_config.additional_configs[
@@ -204,6 +205,7 @@ class DataTransferClient(DataTransferServiceClient, SingletonBase):
             self.cached_transfer_configs_list = self.get_transfer_configs(
                 additional_configs=True
             )
+
         return list(
             filter(
                 lambda x: table_id.lower()
