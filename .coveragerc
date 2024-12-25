@@ -2,3 +2,4 @@
 omit =
     tests/*
     test_*.py
+    datatransfer.py

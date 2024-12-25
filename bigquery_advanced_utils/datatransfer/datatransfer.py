@@ -3,7 +3,7 @@
 import re
 import logging
 
-from typing import Optional, Sequence, Tuple, Union, TYPE_CHECKING
+from typing import Optional, Sequence, Tuple, Union
 from google.cloud.bigquery_datatransfer import DataTransferServiceClient
 
 from google.cloud.bigquery_datatransfer_v1 import (
