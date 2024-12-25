@@ -143,3 +143,33 @@ class String:
         bucket_name = path_parts[0]
         folder = "/".join(path_parts[1:-1]) if len(path_parts) > 1 else ""
         return bucket_name, folder
+
+    @staticmethod
+    def is_regex_pattern_valid(pattern: str) -> bool:
+        """Function to validate a regex pattern.
+
+        Parameters
+        --------
+        pattern: str
+            The pattern to validate.
+
+        Returns
+        --------
+        bool
+            The result of compile:
+                * True: is a valid pattern
+                * False: not
+
+        Raises
+        -------
+        ValueError
+            Trigger for invalid pattern.
+        """
+        try:
+            re.compile(pattern)
+            is_valid = True
+        except re.error as e:
+            is_valid = False
+            raise ValueError(f"Pattern regex is not valid: {e}") from e
+
+        return is_valid

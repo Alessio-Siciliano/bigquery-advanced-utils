@@ -13,9 +13,8 @@ def ensure_bigquery_instance(func: Callable) -> Callable:
     def wrapper(self, *args: Any, **kwargs: Any) -> Any:
         from bigquery_advanced_utils.bigquery import (
             BigQueryClient,
-        )  # Assicurati che il nome del modulo sia corretto
+        )
 
-        # Se l'istanza di BigQuery è già stata creata dall'utente, usiamola
         if (
             not hasattr(self, "_bigquery_instance")
             or self._bigquery_instance is None

@@ -4,7 +4,8 @@
 class Numeric:  # pylint: disable=too-few-public-methods
     """Main class for the Numeric helper."""
 
-    def convert_bytes_to_unit(self, byte_count: int, unit: str) -> float:
+    @staticmethod
+    def convert_bytes_to_unit(byte_count: int, unit: str) -> float:
         """Converts a number of bytes into a specified unit (KB, MB, GB, TB).
 
         Parameters

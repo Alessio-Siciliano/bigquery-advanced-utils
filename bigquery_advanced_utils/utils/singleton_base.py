@@ -15,7 +15,7 @@ class SingletonBase:  # pylint: disable=too-few-public-methods
     _lock: threading.Lock = threading.Lock()
 
     def __new__(cls: Type[T]) -> T:
-        """Read and process a CSV file from a Google Cloud Storage bucket.
+        """This method is called when creating a new instance of the class.
 
         Parameters
         ----------
@@ -46,13 +46,14 @@ class SingletonBase:  # pylint: disable=too-few-public-methods
                             "%s instance successfully initialized.",
                             cls.__name__,
                         )
-                    except OSError as e:
-                        logging.error(
+
+                    except OSError as e:  # pragma: no cover
+                        logging.error(  # pragma: no cover
                             "%s initialization error: %s",
                             cls.__name__,
                             e,
                         )
-                        raise RuntimeError(
+                        raise RuntimeError(  # pragma: no cover
                             f"Failed to initialize {cls.__name__}",
                         ) from e
         else:

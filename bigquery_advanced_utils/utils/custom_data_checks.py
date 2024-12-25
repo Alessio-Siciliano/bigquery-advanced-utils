@@ -3,13 +3,14 @@
 import re
 from datetime import datetime
 from typing import Optional, Union
+from bigquery_advanced_utils.utils import String
 
 
 class CustomDataChecks:
     """Set of useful data checks functions."""
 
+    @staticmethod
     def check_columns(
-        self,
         idx: int,
         row: list,
         column_sums: list,  # pylint: disable=unused-argument
@@ -45,8 +46,8 @@ class CustomDataChecks:
                 f"Row length: {len(row)}, Number of columns: {len(header)}"
             )
 
+    @staticmethod
     def check_unique(
-        self,
         idx: int,
         row: list,
         header: list,
@@ -95,8 +96,8 @@ class CustomDataChecks:
                 )
             column_sums[col_index].add(value)
 
+    @staticmethod
     def check_no_nulls(
-        self,
         idx: int,
         row: list,
         header: list,
@@ -142,8 +143,8 @@ class CustomDataChecks:
                     f"Row {idx}: NULL value found in column '{column_name}'."
                 )
 
+    @staticmethod
     def check_numeric_range(
-        self,
         idx: int,
         row: list,
         header: list,
@@ -227,8 +228,8 @@ class CustomDataChecks:
 
     # EMAIL: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
     # CELL con prefisso: "^\+?[1-9]\d{1,14}$"
+    @staticmethod
     def check_string_pattern(
-        self,
         idx: int,
         row: list,
         header: list,
@@ -270,10 +271,15 @@ class CustomDataChecks:
         if regex_pattern == "":
             raise ValueError("REGEX is NULL!")
 
+        # try:
+        #    regex = re.compile(regex_pattern)
+        # except re.error as e:
+        #    raise ValueError(f"Pattern regex is not valid: {e}") from e
+
         try:
-            regex = re.compile(regex_pattern)
-        except re.error as e:
-            raise ValueError(f"Pattern regex is not valid: {e}") from e
+            String.is_regex_pattern_valid(pattern=regex_pattern)
+        except ValueError as e:
+            raise e
 
         for column_name in columns_to_test:
             if column_name not in header:
@@ -282,7 +288,11 @@ class CustomDataChecks:
             col_index = header.index(column_name)
             value = row[col_index]
 
-            if not regex.match(value) and value != "" and value is not None:
+            if (
+                not re.compile(regex_pattern).match(value)
+                and value != ""
+                and value is not None
+            ):
                 raise ValueError(
                     (
                         f"Row {idx}: "
@@ -292,8 +302,8 @@ class CustomDataChecks:
                     )
                 )
 
+    @staticmethod
     def check_date_format(
-        self,
         idx: int,
         row: list,
         header: list,
@@ -359,8 +369,8 @@ class CustomDataChecks:
                     f"Error: {str(e)}"
                 ) from e
 
+    @staticmethod
     def check_datatype(
-        self,
         idx: int,
         row: list,
         header: list,
@@ -419,8 +429,8 @@ class CustomDataChecks:
                     f"is not of type {expected_datatype.__name__}."
                 ) from e
 
+    @staticmethod
     def check_in_set(
-        self,
         idx: int,
         row: list,
         header: list,

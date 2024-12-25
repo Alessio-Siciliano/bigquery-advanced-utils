@@ -6,7 +6,7 @@ import logging
 from typing import Optional, Sequence, Tuple, Union, TYPE_CHECKING
 from google.cloud.bigquery_datatransfer import DataTransferServiceClient
 
-from google.cloud.bigquery_datatransfer_v1.types.datatransfer import (
+from google.cloud.bigquery_datatransfer_v1 import (
     ListTransferConfigsRequest,
 )
 from google.api_core.retry import Retry
@@ -26,7 +26,7 @@ from bigquery_advanced_utils.utils.constants import (
 )
 
 if TYPE_CHECKING:
-    from bigquery_advanced_utils.bigquery import (
+    from bigquery_advanced_utils.bigquery import (  # pragma: no cover
         BigQueryClient,
     )  # Only for type checks
 
