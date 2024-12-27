@@ -11,7 +11,7 @@ class MockClass:
     _bigquery_instance = MagicMock()
 
     @singleton_instance([BigQueryClient])
-    def mock_method(self, BigQueryClient=None):
+    def mock_method(self, BigQueryClient_instance=None):
         pass
 
 
@@ -21,7 +21,7 @@ class TestEnsureBigQueryInstance(unittest.TestCase):
         class MockClass:
             @singleton_instance([BigQueryClient])
             def mock_method(self, *args, **kwargs):
-                return kwargs.get("BigQueryClient")
+                return kwargs.get("BigQueryClient_instance")
 
         self.mock_class = MockClass()
 
