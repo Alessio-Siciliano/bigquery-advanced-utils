@@ -22,10 +22,17 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v4
     
+    - name: Read Python version from file
+      id: get_python_version
+      run: |
+        python_version=$(cat .python_version)
+        echo "Using Python version: $python_version"
+        echo "python-version=$python_version" >> $GITHUB_ENV
+    
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.12.8'
+        python-version: ${{ env.python-version }}
     
     - name: Cache dependencies
       uses: actions/cache@v4
