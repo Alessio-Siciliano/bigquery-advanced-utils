@@ -3,6 +3,7 @@
 ![Total Downloads](https://static.pepy.tech/badge/bigquery-advanced-utils?textLength=250)
 ![License](https://img.shields.io/badge/license-GNU%20GPL%20v3-blue)
 ![Version](https://img.shields.io/github/v/release/Alessio-Siciliano/bigquery-advanced-utils)
+[![codecov](https://codecov.io/gh/Alessio-Siciliano/bigquery-advanced-utils/graph/badge.svg?token=TA7EPVWA7E)](https://codecov.io/gh/Alessio-Siciliano/bigquery-advanced-utils)
 ![PyPI](https://img.shields.io/pypi/v/bigquery-advanced-utils)
 ![Issues](https://img.shields.io/github/issues/Alessio-Siciliano/bigquery-advanced-utils)
 ![Contributors](https://img.shields.io/github/contributors/Alessio-Siciliano/bigquery-advanced-utils)

@@ -25,6 +25,7 @@ jobs:
       - name: BlackLint
         uses: psf/black@stable
         with:
+          src: "./bigquery_advanced_utils"
           version: "24.8.0"
   
   set-status:
