@@ -14,7 +14,7 @@ permissions:
   statuses: write
 
 jobs:
-  test:
+  build:
     name: Run Tests and Coverage
     runs-on: ubuntu-latest
 
@@ -58,7 +58,12 @@ jobs:
       - name: Enforce coverage threshold
         run: |
           coverage report --fail-under=100
-      
+  
+  set-status:
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()   
+    steps:
       - name: Set commit status based on coverage result
         uses: actions/github-script@v6
         with:
