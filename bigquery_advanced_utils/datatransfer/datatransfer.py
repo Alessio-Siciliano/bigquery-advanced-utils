@@ -129,7 +129,7 @@ class DataTransferClient(DataTransferServiceClient, SingletonBase):
                 )
 
                 simulated_attributes = kwargs.get(
-                    "BigQueryClient"
+                    "BigQueryClient_instance"
                 ).simulate_query(
                     transfer_config.base_config.params.get("query")
                 )

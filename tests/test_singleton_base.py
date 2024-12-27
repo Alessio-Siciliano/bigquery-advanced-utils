@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import logging
-from bigquery_advanced_utils.utils import (
+from bigquery_advanced_utils.core import (
     SingletonBase,
 )
 

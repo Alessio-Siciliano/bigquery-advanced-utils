@@ -33,7 +33,9 @@ def singleton_instance(class_types: List[Type[SingletonBase]]) -> Callable:
         @wraps(func)
         def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
             # Get the singleton instances of the classes passed as parameters
-            instances = {cls.__name__: cls() for cls in class_types}
+            instances = {
+                f"{cls.__name__}_instance": cls() for cls in class_types
+            }
 
             # Pass the instances as keyword arguments to the function
             return func(self, *args, **kwargs, **instances)
