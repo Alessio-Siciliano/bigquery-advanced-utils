@@ -1,6 +1,5 @@
 """ Module with the constants of the project. """
 
-from typing import Literal
 from google.cloud.bigquery.job import SourceFormat
 
 # General constants
@@ -30,11 +29,6 @@ MATCHING_RULE_TABLE_REF_ID = (
 MATCHING_RULE_TRANSFER_CONFIG_ID = (
     MATCHING_RULE_PROJECT_LOCATION + r"\/transferConfigs\/([^\/]+)"
 )
-
-# Literal
-PartitionTimeGranularities = Literal["HOUR", "DAY", "MONTH", "YEAR"]
-OutputFileFormat = Literal["CSV", "JSON", "AVRO"]
-PermissionActionTypes = Literal["ADD", "REMOVE", "UPDATE"]
 
 # Cloud Logging
 FILTER_ACCESS_LOGS = """

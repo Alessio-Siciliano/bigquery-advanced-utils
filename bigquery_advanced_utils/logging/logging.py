@@ -9,8 +9,8 @@ from bigquery_advanced_utils.core.constants import (
     MATCHING_RULE_TABLE_REF_ID,
     FILTER_ACCESS_LOGS,
     SOURCE_ORIGIN_TYPE,
-    OutputFileFormat,
 )
+from bigquery_advanced_utils.core.types import OutputFileFormat
 from bigquery_advanced_utils.core.decorators import (
     run_once,
     singleton_instance,
