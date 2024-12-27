@@ -32,13 +32,13 @@ from google.cloud import bigquery
 from google.api_core.exceptions import NotFound
 from google.auth.exceptions import RefreshError
 from google.cloud.exceptions import GoogleCloudError
-from bigquery_advanced_utils.utils.constants import (
+from bigquery_advanced_utils.core.constants import (
     OUTPUT_FILE_FORMAT,
     OutputFileFormat,
     PermissionActionTypes,
 )
-from bigquery_advanced_utils.utils import SingletonBase
-from bigquery_advanced_utils.utils.decorators import run_once
+from bigquery_advanced_utils.core import SingletonBase
+from bigquery_advanced_utils.core.decorators import run_once
 
 
 class BigQueryClient(bigquery.Client, SingletonBase):

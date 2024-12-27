@@ -1,7 +1,16 @@
 # pylint: disable=no-untyped-def
 import unittest
 from datetime import datetime
-from bigquery_advanced_utils.utils import CustomDataChecks
+from bigquery_advanced_utils.utils.data_checks import (
+    check_columns,
+    check_unique,
+    check_no_nulls,
+    check_numeric_range,
+    check_string_pattern,
+    check_date_format,
+    check_datatype,
+    check_in_set,
+)
 
 
 # Classe di test per CustomDataChecks
@@ -17,35 +26,31 @@ class TestCustomDataChecks(unittest.TestCase):
     # Test check_columns
     def test_check_columns_valid(self) -> None:
         row = ["John", "30", "john@example.com", "1993-01-01"]
-        CustomDataChecks.check_columns(1, row, self.column_sums, self.header)
+        check_columns(1, row, self.column_sums, self.header)
 
     def test_check_columns_invalid(self) -> None:
         row = ["John", "30", "john@example.com"]  # manca una colonna
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_columns(
-                1, row, self.column_sums, self.header
-            )
+            check_columns(1, row, self.column_sums, self.header)
 
     # Test check_unique
     def test_check_unique_valid(self) -> None:
         row1 = ["John", "30", "john@example.com", "1993-01-01"]
         row2 = ["Jane", "25", "jane@example.com", "1998-01-01"]
-        CustomDataChecks.check_unique(1, row1, self.header, self.column_sums)
-        CustomDataChecks.check_unique(2, row2, self.header, self.column_sums)
+        check_unique(1, row1, self.header, self.column_sums)
+        check_unique(2, row2, self.header, self.column_sums)
 
     def test_check_unique_invalid(self) -> None:
         row1 = ["John", "30", "john@example.com", "1993-01-01"]
         row2 = ["John", "30", "john@example.com", "1993-01-01"]  # Duplicato
-        CustomDataChecks.check_unique(1, row1, self.header, self.column_sums)
+        check_unique(1, row1, self.header, self.column_sums)
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_unique(
-                2, row2, self.header, self.column_sums
-            )
+            check_unique(2, row2, self.header, self.column_sums)
 
     def test_check_unique_invalid_column_name(self) -> None:
         row1 = ["John", "30", "john@example.com", "1993-01-01"]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_unique(
+            check_unique(
                 1,
                 row1,
                 self.header,
@@ -56,7 +61,7 @@ class TestCustomDataChecks(unittest.TestCase):
     # Test check_no_nulls
     def test_check_no_nulls_valid(self) -> None:
         row = ["John", "30", "john@example.com", "1993-01-01"]
-        CustomDataChecks.check_no_nulls(1, row, self.header, self.column_sums)
+        check_no_nulls(1, row, self.header, self.column_sums)
 
     def test_check_no_nulls_invalid(self) -> None:
         row = [
@@ -66,14 +71,12 @@ class TestCustomDataChecks(unittest.TestCase):
             "1993-01-01",
         ]  # Valore vuoto in "age"
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_no_nulls(
-                1, row, self.header, self.column_sums
-            )
+            check_no_nulls(1, row, self.header, self.column_sums)
 
     def test_check_no_nulls_invalid_column_name(self) -> None:
         row1 = ["John", "30", "john@example.com", "1993-01-01"]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_no_nulls(
+            check_no_nulls(
                 1,
                 row1,
                 self.header,
@@ -84,7 +87,7 @@ class TestCustomDataChecks(unittest.TestCase):
     # Test check_numeric_range
     def test_check_numeric_range_valid(self) -> None:
         row = ["John", "30", "john@example.com", "1993-01-01"]
-        CustomDataChecks.check_numeric_range(
+        check_numeric_range(
             1,
             row,
             self.header,
@@ -102,7 +105,7 @@ class TestCustomDataChecks(unittest.TestCase):
             "1993-01-01",
         ]  # "age" out of interval
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_numeric_range(
+            check_numeric_range(
                 1,
                 row,
                 self.header,
@@ -115,7 +118,7 @@ class TestCustomDataChecks(unittest.TestCase):
     def test_check_numeric_range_missing_min_or_max(self) -> None:
         row1 = ["John", "30", "john@example.com", "1993-01-01"]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_numeric_range(
+            check_numeric_range(
                 1,
                 row1,
                 self.header,
@@ -127,7 +130,7 @@ class TestCustomDataChecks(unittest.TestCase):
     def test_check_numeric_range_invalid_column_name(self) -> None:
         row1 = ["John", "30", "john@example.com", "1993-01-01"]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_numeric_range(
+            check_numeric_range(
                 1,
                 row1,
                 self.header,
@@ -140,7 +143,7 @@ class TestCustomDataChecks(unittest.TestCase):
     def test_check_numeric_range_invalid_value(self) -> None:
         row1 = ["John", "hello", "john@example.com", "1993-01-01"]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_numeric_range(
+            check_numeric_range(
                 1,
                 row1,
                 self.header,
@@ -156,7 +159,7 @@ class TestCustomDataChecks(unittest.TestCase):
 
         valid_rows = []
         for i, row in enumerate([row1, row2]):
-            CustomDataChecks.check_numeric_range(
+            check_numeric_range(
                 i,
                 row,
                 self.header,
@@ -175,7 +178,7 @@ class TestCustomDataChecks(unittest.TestCase):
     # Test check_string_pattern
     def test_check_string_pattern_valid(self) -> None:
         row = ["John", "30", "john@example.com", "1993-01-01"]
-        CustomDataChecks.check_string_pattern(
+        check_string_pattern(
             1,
             row,
             self.header,
@@ -187,7 +190,7 @@ class TestCustomDataChecks(unittest.TestCase):
     def test_check_string_pattern_invalid(self) -> None:
         row = ["John", "30", "invalid-email", "1993-01-01"]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_string_pattern(
+            check_string_pattern(
                 1,
                 row,
                 self.header,
@@ -199,7 +202,7 @@ class TestCustomDataChecks(unittest.TestCase):
     def test_check_string_pattern_missing_pattern(self) -> None:
         row = ["John", "30", "invalid-email", "1993-01-01"]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_string_pattern(
+            check_string_pattern(
                 1,
                 row,
                 self.header,
@@ -210,7 +213,7 @@ class TestCustomDataChecks(unittest.TestCase):
     def test_check_string_pattern_invalid_pattern(self) -> None:
         row = ["John", "30", "invalid-email", "1993-01-01"]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_string_pattern(
+            check_string_pattern(
                 1,
                 row,
                 self.header,
@@ -222,7 +225,7 @@ class TestCustomDataChecks(unittest.TestCase):
     def test_check_string_pattern_invalid_column_name(self) -> None:
         row = ["John", "30", "invalid-email", "1993-01-01"]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_string_pattern(
+            check_string_pattern(
                 1,
                 row,
                 self.header,
@@ -234,7 +237,7 @@ class TestCustomDataChecks(unittest.TestCase):
     # Test check_date_format
     def test_check_date_format_valid(self) -> None:
         row = ["John", "30", "john@example.com", "1993-01-01"]
-        CustomDataChecks.check_date_format(
+        check_date_format(
             1,
             row,
             self.header,
@@ -251,7 +254,7 @@ class TestCustomDataChecks(unittest.TestCase):
             "01/01/1993",
         ]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_date_format(
+            check_date_format(
                 1, row, self.header, self.column_sums, date_format="%Y-%m-%d"
             )
 
@@ -263,7 +266,7 @@ class TestCustomDataChecks(unittest.TestCase):
             "01/01/1993",
         ]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_date_format(
+            check_date_format(
                 1,
                 row,
                 self.header,
@@ -275,7 +278,7 @@ class TestCustomDataChecks(unittest.TestCase):
     # Test check_datatype
     def test_check_datatype_valid(self) -> None:
         row = ["John", "30", "john@example.com", "1993-01-01"]
-        CustomDataChecks.check_datatype(
+        check_datatype(
             1,
             row,
             self.header,
@@ -292,9 +295,7 @@ class TestCustomDataChecks(unittest.TestCase):
             "1993-01-01",
         ]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_datatype(
-                1, row, self.header, self.column_sums
-            )
+            check_datatype(1, row, self.header, self.column_sums)
 
     def test_check_datatype_invalid(self) -> None:
         row = [
@@ -304,7 +305,7 @@ class TestCustomDataChecks(unittest.TestCase):
             "1993-01-01",
         ]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_datatype(
+            check_datatype(
                 1, row, self.header, self.column_sums, expected_datatype=int
             )
 
@@ -316,7 +317,7 @@ class TestCustomDataChecks(unittest.TestCase):
             "1993-01-01",
         ]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_datatype(
+            check_datatype(
                 1,
                 row,
                 self.header,
@@ -328,7 +329,7 @@ class TestCustomDataChecks(unittest.TestCase):
     # Test check_in_set
     def test_check_in_set_valid(self) -> None:
         row = ["John", "30", "john@example.com", "1993-01-01"]
-        CustomDataChecks.check_in_set(
+        check_in_set(
             1,
             row,
             self.header,
@@ -345,7 +346,7 @@ class TestCustomDataChecks(unittest.TestCase):
             "1993-01-01",
         ]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_in_set(
+            check_in_set(
                 1,
                 row,
                 self.header,
@@ -362,7 +363,7 @@ class TestCustomDataChecks(unittest.TestCase):
             "1993-01-01",
         ]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_in_set(
+            check_in_set(
                 1,
                 row,
                 self.header,
@@ -379,7 +380,7 @@ class TestCustomDataChecks(unittest.TestCase):
             "1993-01-01",
         ]
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_in_set(
+            check_in_set(
                 1,
                 row,
                 self.header,
@@ -394,7 +395,7 @@ class TestCustomDataChecks(unittest.TestCase):
             "1993-01-01",
         ]  # "age" non valido
         with self.assertRaises(ValueError):
-            CustomDataChecks.check_in_set(
+            check_in_set(
                 1,
                 row,
                 self.header,

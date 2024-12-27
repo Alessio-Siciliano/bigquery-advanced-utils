@@ -12,6 +12,16 @@ OUTPUT_FILE_FORMAT = {
     "AVRO": SourceFormat.AVRO,
 }
 
+# String constants
+# Rule to remove all text inside a comment in each language.
+COMMENTS_PATTERNS = {"standard_sql": r"//.*|--.*|\/\*.*?\*\/"}
+
+# REGEX to identify a table with the pattern <project>.<dataset>.<table>
+TABLES_PATTERN = r"[\w'\"`_-]+\.[\w'\"`_-]+\.[\w'\"`_-]+"
+
+# REGEX pattern to identify all non alphanumeric, ., -,_
+NON_ALPHANUMERIC_CHARS = "[^a-zA-Z0-9._\\s-]"
+
 # Regex patterns
 MATCHING_RULE_PROJECT_LOCATION = r"projects\/([^\/]+)\/locations\/([^\/]+)"
 MATCHING_RULE_TABLE_REF_ID = (

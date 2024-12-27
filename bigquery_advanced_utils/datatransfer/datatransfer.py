@@ -12,16 +12,16 @@ from google.cloud.bigquery_datatransfer_v1 import (
 from google.api_core.retry import Retry
 from google.api_core.gapic_v1.method import _MethodDefault
 
-from bigquery_advanced_utils.utils.string import String
+from bigquery_advanced_utils.utils import string_utils
 from bigquery_advanced_utils.datatransfer.extended_transfer_config import (
     ExtendedTransferConfig,
 )
-from bigquery_advanced_utils.utils import SingletonBase
-from bigquery_advanced_utils.utils.decorators import (
+from bigquery_advanced_utils.core import SingletonBase
+from bigquery_advanced_utils.core.decorators import (
     run_once,
     singleton_instance,
 )
-from bigquery_advanced_utils.utils.constants import (
+from bigquery_advanced_utils.core.constants import (
     MATCHING_RULE_PROJECT_LOCATION,
 )
 
@@ -211,7 +211,7 @@ class DataTransferClient(DataTransferServiceClient, SingletonBase):
                 lambda x: table_id.lower()
                 in [
                     t.lower().split(".")[-1]
-                    for t in String.extract_tables_from_query(
+                    for t in string_utils.extract_tables_from_query(
                         x.base_config.params.get("query")
                     )
                 ],

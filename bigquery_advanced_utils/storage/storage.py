@@ -3,8 +3,8 @@
 import csv
 from typing import Any
 from google.cloud.storage import Client  # type: ignore
-from bigquery_advanced_utils.utils import SingletonBase
-from bigquery_advanced_utils.utils.decorators import run_once
+from bigquery_advanced_utils.core import SingletonBase
+from bigquery_advanced_utils.core.decorators import run_once
 
 
 # in tutti gli altri file la richiamo così "gcs_instance = GoogleCloudStorage()" (dopo aver messo il decoratore)

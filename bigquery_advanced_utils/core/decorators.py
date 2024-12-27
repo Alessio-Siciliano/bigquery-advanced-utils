@@ -3,7 +3,7 @@
 # pylint: disable=import-outside-toplevel, protected-access, missing-param-doc, missing-return-doc
 from typing import Callable, Any, Optional, Type, List
 from functools import wraps
-from bigquery_advanced_utils.utils import SingletonBase
+from bigquery_advanced_utils.core import SingletonBase
 
 
 def run_once(  # pylint: disable=missing-return-doc,missing-function-docstring
@@ -26,7 +26,7 @@ def singleton_instance(class_types: List[Type[SingletonBase]]) -> Callable:
 
     Parameters:
         class_types: The classes from which you want to get
-                     the singleton instance
+            the singleton instance
     """
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:

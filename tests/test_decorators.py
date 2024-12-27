@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from bigquery_advanced_utils.datatransfer import DataTransferClient
 from bigquery_advanced_utils.bigquery import BigQueryClient
-from bigquery_advanced_utils.utils.decorators import (
+from bigquery_advanced_utils.core.decorators import (
     singleton_instance,
 )
 
