@@ -25,11 +25,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Set up Python
+
+      - name: Read Python version from file
+        id: get_python_version
+        run: |
+          python_version=$(cat .python_version)
+          echo "Using Python version: $python-version"
+          echo "python-version=$python_version" >> $GITHUB_ENV
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.12.8
+          python-version: ${{ env.python-version }}
 
       # Install dependencies
       - name: Install dependencies

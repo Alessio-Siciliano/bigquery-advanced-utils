@@ -26,11 +26,11 @@ jobs:
       id: get_python_version
       run: |
         python_version=$(cat .python_version)
-        echo "Using Python version: $python_version"
+        echo "Using Python version: $python-version"
         echo "python-version=$python_version" >> $GITHUB_ENV
     
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ env.python-version }}
     

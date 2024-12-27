@@ -25,7 +25,7 @@ jobs:
       - name: Extract black version
         id: black_version
         run: |
-          BLACK_VERSION=$(grep 'black==' requirements-dev.txt | cut -d '==' -f 2)
+          BLACK_VERSION=$(grep 'black==' requirements-dev.txt | cut -d '=' -f 2)
           echo "BLACK_VERSION=$BLACK_VERSION" >> $GITHUB_ENV
 
       - name: BlackLint
