@@ -31,10 +31,15 @@ jobs:
               });
 
               const pylintStatus = data.statuses.find(status => status.context === 'PyLint')?.state;
-              const blackStatus = data.statuses.find(status => status.context === 'Black Formatter')?.state;
-              const coverageStatus = data.statuses.find(status => status.context === 'Coverage')?.state;
+              const pylintSHA = data.statuses.find(status => status.context === 'PyLint')?.sha;
 
-            console.log(`PyLint: ${pylintStatus} | Black: ${blackStatus} | Coverage: ${coverageStatus}`);
+              const blackStatus = data.statuses.find(status => status.context === 'Black Formatter')?.state;
+              const blackSHA = data.statuses.find(status => status.context === 'Black Formatter')?.sha;
+
+              const coverageStatus = data.statuses.find(status => status.context === 'Coverage')?.state;
+              const coverageSHA = data.statuses.find(status => status.context === 'Coverage')?.sha;
+
+            console.log(`PyLint: ${pylintStatus} (${pylintSHA}) | Black: ${blackStatus} (${blackSHA}) | Coverage: ${coverageStatus} (${coverageSHA})`);
 
               if (pylintStatus === 'success' && blackStatus === 'success' && coverageStatus === 'success') {
                 console.log('Pylint, Black and Coverage succeeded.');
