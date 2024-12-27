@@ -163,14 +163,14 @@ class TestCustomDataChecks(unittest.TestCase):
                 i,
                 row,
                 self.header,
-                column_sums=[],
+                self.column_sums,
                 columns_to_test=["age"],
                 min_value=18,
                 max_value=35,
             )
 
-        if row[self.header.index("age")] != "":
-            valid_rows.append(row)
+            if row[self.header.index("age")] != "":
+                valid_rows.append(row)
 
         expected_output = [["John", "20", "john@example.com", "1993-01-01"]]
         self.assertEqual(valid_rows, expected_output)
