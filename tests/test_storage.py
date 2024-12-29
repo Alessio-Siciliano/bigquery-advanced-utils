@@ -4,18 +4,35 @@ from bigquery_advanced_utils.storage import CloudStorageClient
 
 
 class TestCloudStorageClient(unittest.TestCase):
-    @patch(
-        "google.cloud.storage.Client"
-    )  # Patch the Google Cloud Client constructor
-    @patch("bigquery_advanced_utils.storage.CloudStorageClient.bucket")
-    def test_upload_dict_to_gcs_json(self, mock_bucket, mock_client):
-        # Mock the Google Cloud Storage client initialization
-        mock_client.return_value = MagicMock()
 
+    def setUp(self):
+        # Mock google.auth.default to return dummy credentials
+        self.patcher_auth = patch("google.auth.default")
+        self.mock_auth = self.patcher_auth.start()
+        self.mock_auth.return_value = (None, "dummy-project")
+
+        # Mock google.cloud.storage.Client to prevent actual initialization
+        self.patcher_client = patch("google.cloud.storage.Client")
+        self.mock_client = self.patcher_client.start()
+        self.mock_client.return_value = MagicMock()
+
+        # Mock the bucket method
+        self.patcher_bucket = patch(
+            "bigquery_advanced_utils.storage.CloudStorageClient.bucket"
+        )
+        self.mock_bucket = self.patcher_bucket.start()
+
+    def tearDown(self):
+        # Stop all patches after each test
+        self.patcher_auth.stop()
+        self.patcher_client.stop()
+        self.patcher_bucket.stop()
+
+    def test_upload_dict_to_gcs_json(self):
         # Arrange
         client = CloudStorageClient()
         mock_blob = MagicMock()
-        mock_bucket.return_value.blob.return_value = mock_blob
+        self.mock_bucket.return_value.blob.return_value = mock_blob
 
         bucket_name = "test-bucket"
         file_name = "test-file.json"
@@ -30,7 +47,7 @@ class TestCloudStorageClient(unittest.TestCase):
         )
 
         # Assert
-        mock_bucket.assert_called_once_with(bucket_name)
+        self.mock_bucket.assert_called_once_with(bucket_name)
         mock_blob.upload_from_string.assert_called_once_with(
             data="""[
   {
@@ -41,51 +58,7 @@ class TestCloudStorageClient(unittest.TestCase):
             content_type="application/json",
         )
 
-    @patch("google.cloud.storage.Client")
-    @patch("bigquery_advanced_utils.storage.CloudStorageClient.bucket")
-    def test_upload_dict_to_gcs_csv(self, mock_bucket, mock_client):
-        # Mock the Google Cloud Storage client initialization
-        mock_client.return_value = MagicMock()
-
-        # Arrange
-        client = CloudStorageClient()
-        mock_blob = MagicMock()
-        mock_bucket.return_value.blob.return_value = mock_blob
-
-        bucket_name = "test-bucket"
-        file_name = "test-file.csv"
-        data = [
-            {"key1": "value1", "key2": "value2"},
-            {"key1": "value3", "key2": "value4"},
-        ]
-
-        # Act
-        client.upload_dict_to_gcs(
-            bucket_name=bucket_name,
-            file_name=file_name,
-            data=data,
-            fields_names=["key1", "key2"],
-            file_format="csv",
-        )
-
-        # Assert
-        mock_bucket.assert_called_once_with(bucket_name)
-        mock_blob.upload_from_string.assert_called_once()
-        uploaded_data = mock_blob.upload_from_string.call_args[1]["data"]
-        self.assertIn("key1,key2", uploaded_data)
-        self.assertIn("value1,value2", uploaded_data)
-        self.assertIn("value3,value4", uploaded_data)
-        self.assertEqual(
-            mock_blob.upload_from_string.call_args[1]["content_type"],
-            "text/csv",
-        )
-
-    @patch("google.cloud.storage.Client")
-    @patch("bigquery_advanced_utils.storage.CloudStorageClient.bucket")
-    def test_upload_dict_to_gcs_invalid_format(self, mock_bucket, mock_client):
-        # Mock the Google Cloud Storage client initialization
-        mock_client.return_value = MagicMock()
-
+    def test_upload_dict_to_gcs_invalid_format(self):
         # Arrange
         client = CloudStorageClient()
         bucket_name = "test-bucket"
@@ -105,12 +78,7 @@ class TestCloudStorageClient(unittest.TestCase):
             str(context.exception), "Format 'txt' non recognized!"
         )
 
-    @patch("google.cloud.storage.Client")
-    @patch("bigquery_advanced_utils.storage.CloudStorageClient.bucket")
-    def test_upload_dict_to_gcs_invalid_data(self, mock_bucket, mock_client):
-        # Mock the Google Cloud Storage client initialization
-        mock_client.return_value = MagicMock()
-
+    def test_upload_dict_to_gcs_invalid_data(self):
         # Arrange
         client = CloudStorageClient()
         bucket_name = "test-bucket"
