@@ -16,7 +16,7 @@ class TestLoggingClient(unittest.TestCase):
         self.mock_entries = [
             MagicMock(
                 insert_id="1",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(),
                 payload={
                     "authenticationInfo": {
                         "principalEmail": "test@example.com"
@@ -72,7 +72,7 @@ class TestLoggingClient(unittest.TestCase):
         mock_list_entries.return_value = [
             MagicMock(
                 insert_id="1",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(),
                 payload={
                     "authenticationInfo": {
                         "principalEmail": "test@example.com"
@@ -109,7 +109,7 @@ class TestLoggingClient(unittest.TestCase):
         mock_list_entries.return_value = [
             MagicMock(
                 insert_id="1",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(),
                 payload={
                     "authenticationInfo": {
                         "principalEmail": "test@example.com"
@@ -144,8 +144,8 @@ class TestLoggingClient(unittest.TestCase):
         self.assertEqual(len(logs), 1)
 
     def test_start_time_greater_than_end_time(self):
-        start_time = datetime.now(timezone.utc) + timedelta(days=1)
-        end_time = datetime.now(timezone.utc)
+        start_time = datetime.now() + timedelta(days=1)
+        end_time = datetime.now()
         with self.assertRaises(ValueError) as context:
             self.logging_client._calculate_interval(
                 start_time=start_time, end_time=end_time
@@ -155,15 +155,15 @@ class TestLoggingClient(unittest.TestCase):
         )
 
     def test_start_time_only(self):
-        start_time = datetime.now(timezone.utc) - timedelta(days=2)
+        start_time = datetime.now() - timedelta(days=2)
         result = self.logging_client._calculate_interval(start_time=start_time)
         self.assertEqual(result[0], start_time)
         self.assertTrue(result[1] > start_time)
 
     @patch("google.cloud.logging.Client.list_entries")
     def test_get_all_data_access_logs_with_start_end(self, mock_list_entries):
-        start_date = datetime.now(timezone.utc) - timedelta(days=5)
-        end_date = datetime.now(timezone.utc)
+        start_date = datetime.now() - timedelta(days=5)
+        end_date = datetime.now()
 
         mock_list_entries.return_value = self.mock_entries
 
@@ -205,8 +205,8 @@ class TestLoggingClient(unittest.TestCase):
     def test_get_all_data_access_logs_exception(self, mock_list_entries):
         mock_list_entries.side_effect = Exception("Simulated error")
 
-        start_time = datetime.now(timezone.utc) - timedelta(days=1)
-        end_time = datetime.now(timezone.utc)
+        start_time = datetime.now() - timedelta(days=1)
+        end_time = datetime.now()
 
         with self.assertRaises(Exception) as context:
             self.logging_client.get_all_data_access_logs(
@@ -222,8 +222,8 @@ class TestLoggingClient(unittest.TestCase):
         mock_upload_dict_to_gcs.return_value = None
         self.logging_client.cache = {
             "cached": True,
-            "start_time": datetime.now(timezone.utc) - timedelta(days=2),
-            "end_time": datetime.now(timezone.utc),
+            "start_time": datetime.now() - timedelta(days=2),
+            "end_time": datetime.now(),
         }
         self.logging_client.data_access_logs = self.mock_entries
 
@@ -245,7 +245,7 @@ class TestLoggingClient(unittest.TestCase):
         mock_list_entries.return_value = [
             MagicMock(
                 insert_id="1",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(),
                 payload={
                     "authenticationInfo": {
                         "principalEmail": "test@example.com"

@@ -16,6 +16,7 @@ from bigquery_advanced_utils.core.decorators import (
     run_once,
     singleton_instance,
 )
+from bigquery_advanced_utils.utils import datetime_utils
 
 
 class LoggingClient(Client):
@@ -51,30 +52,30 @@ class LoggingClient(Client):
         ValueError
             If the arguments are not valid.
         """
-        kwargs_presence = (
-            kwargs.get("start_time") or kwargs.get("end_time")
-        ) is not None
+        # Check presence of keywords
+        check_if_start_time = kwargs.get("start_time") is not None
+        days = next(
+            (item for item in args if isinstance(item, int)),
+            kwargs.get("days", None),
+        )
 
-        if (len(args) == 1 and not kwargs_presence) or (
-            len(kwargs) == 1 and not kwargs_presence and "days" in kwargs
-        ):
-            days = kwargs.get("days") or args[0]
-            start_time = datetime.now(timezone.utc) - timedelta(days=days)
-            end_time = datetime.now(timezone.utc)
-        # elif len(kwargs) == 2 and not args:
-        elif (
-            kwargs.get("start_time") is not None
-            and kwargs.get("end_time") is not None
-        ):
-            start_time = kwargs.get("start_time")
-            end_time = kwargs.get("end_time")
+        if days is not None:
+            start_time = datetime.now() - timedelta(days=days)
+            end_time = datetime.now()
+        elif check_if_start_time is True:
+            start_time = datetime_utils.resolve_datetime(
+                kwargs.get("start_time")
+            )
+            end_time = (
+                datetime_utils.resolve_datetime(kwargs.get("end_time"))
+                if kwargs.get("end_time") is not None
+                else datetime.now()
+            )
             if start_time > end_time:
                 raise ValueError("Start time must be before end time.")
-        elif len(kwargs) == 1 and "start_time" in kwargs:
-            start_time = kwargs.get("start_time")
-            end_time = datetime.now(timezone.utc)
         else:
             raise ValueError("Invalid arguments, datetime range missing.")
+
         return start_time, end_time
 
     def get_all_data_access_logs(  # pylint: disable=too-many-locals
