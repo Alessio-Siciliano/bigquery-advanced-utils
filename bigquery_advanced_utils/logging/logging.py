@@ -3,7 +3,7 @@
 import re
 import logging
 from typing import Tuple
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from google.cloud.logging import Client, DESCENDING
 from bigquery_advanced_utils.storage import CloudStorageClient
 from bigquery_advanced_utils.core.constants import (
