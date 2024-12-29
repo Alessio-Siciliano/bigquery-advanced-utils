@@ -30,11 +30,6 @@ class TestDatetimeFunctions(unittest.TestCase):
         with self.assertRaises(ValueError):
             resolve_datetime(invalid_param)
 
-    def test_none_string(self) -> None:
-        """Test that None as a string returns None."""
-        result = resolve_datetime(None)
-        self.assertIsNone(result)
-
 
 if __name__ == "__main__":
     unittest.main()

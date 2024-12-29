@@ -1,14 +1,19 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from datetime import datetime, timedelta, timezone
+from google.auth.credentials import (
+    AnonymousCredentials,
+)
 from bigquery_advanced_utils.logging import LoggingClient
 
 
 class TestLoggingClient(unittest.TestCase):
 
     @patch("google.cloud.logging.Client")
-    def setUp(self, MockClient):
-        # Setup mock
+    @patch("google.auth.default")
+    def setUp(self, mock_auth, MockClient):
+        mock_auth.return_value = (AnonymousCredentials(), "dummy-project")
+
         self.mock_client = MockClient.return_value
         self.logging_client = LoggingClient()
         self.logging_client.project = "test_project"
@@ -49,9 +54,7 @@ class TestLoggingClient(unittest.TestCase):
 
         mock_list_entries.return_value = self.mock_entries
 
-        logging_client = (
-            LoggingClient()
-        )  # Assuming the class is called LoggingClient
+        logging_client = LoggingClient()
         logs = logging_client.get_all_data_access_logs(days)
 
         self.assertEqual(len(logs), 1)
@@ -93,9 +96,7 @@ class TestLoggingClient(unittest.TestCase):
             )
         ]
 
-        logging_client = (
-            LoggingClient()
-        )  # Assuming the class is called LoggingClient
+        logging_client = LoggingClient()
         logs = logging_client.get_all_data_access_logs(days)
 
         self.assertEqual(len(logs), 0)
@@ -136,9 +137,7 @@ class TestLoggingClient(unittest.TestCase):
             )
         ]
 
-        logging_client = (
-            LoggingClient()
-        )  # Assuming the class is called LoggingClient
+        logging_client = LoggingClient()
         logs = logging_client.get_all_data_access_logs(days)
 
         self.assertEqual(len(logs), 1)
