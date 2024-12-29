@@ -1,15 +1,16 @@
 import unittest
 from unittest.mock import MagicMock, patch
+from google.auth.credentials import AnonymousCredentials
 from bigquery_advanced_utils.storage import CloudStorageClient
 
 
 class TestCloudStorageClient(unittest.TestCase):
 
     def setUp(self):
-        # Mock google.auth.default to return dummy credentials
+        # Mock google.auth.default to return fake credentials (AnonymousCredentials)
         self.patcher_auth = patch("google.auth.default")
         self.mock_auth = self.patcher_auth.start()
-        self.mock_auth.return_value = (None, "dummy-project")
+        self.mock_auth.return_value = (AnonymousCredentials(), "dummy-project")
 
         # Mock google.cloud.storage.Client to prevent actual initialization
         self.patcher_client = patch("google.cloud.storage.Client")
