@@ -22,6 +22,7 @@ class TestDataChecks(unittest.TestCase):
     def setUp(self) -> None:
         self.header = ["name", "age", "email", "dob"]
         self.column_sums: dict[str, set] = {n: set() for n in self.header}
+        patch("google.cloud.storage.Client.__init__", lambda x: None).start()
 
     @patch("os.path.exists")
     def test_local_file_not_found(self, mock_exists) -> None:

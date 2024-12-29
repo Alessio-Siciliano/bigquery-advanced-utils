@@ -9,12 +9,9 @@ from bigquery_advanced_utils.logging import LoggingClient
 
 class TestLoggingClient(unittest.TestCase):
 
-    @patch("google.cloud.logging.Client")
-    @patch("google.auth.default")
-    def setUp(self, mock_auth, MockClient):
-        mock_auth.return_value = (AnonymousCredentials(), "dummy-project")
+    def setUp(self):
+        patch("google.cloud.bigquery.Client.__init__", lambda x: None).start()
 
-        self.mock_client = MockClient.return_value
         self.logging_client = LoggingClient()
         self.logging_client.project = "test_project"
         self.logging_client.cached = False
