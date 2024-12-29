@@ -10,7 +10,7 @@ from bigquery_advanced_utils.logging import LoggingClient
 class TestLoggingClient(unittest.TestCase):
 
     def setUp(self):
-        patch("google.cloud.bigquery.Client.__init__", lambda x: None).start()
+        patch("google.cloud.logging.Client.__init__", lambda x: None).start()
 
         self.logging_client = LoggingClient()
         self.logging_client.project = "test_project"
