@@ -59,6 +59,31 @@ class TestCloudStorageClient(unittest.TestCase):
             content_type="application/json",
         )
 
+    def test_upload_dict_to_gcs_csv(self):
+        # Arrange
+        client = CloudStorageClient()
+        mock_blob = MagicMock()
+        self.mock_bucket.return_value.blob.return_value = mock_blob
+
+        bucket_name = "test-bucket"
+        file_name = "test-file.csv"
+        data = [{"key1": "value1", "key2": "value2"}]
+
+        # Act
+        client.upload_dict_to_gcs(
+            bucket_name=bucket_name,
+            file_name=file_name,
+            data=data,
+            file_format="csv",
+        )
+
+        # Assert
+        self.mock_bucket.assert_called_once_with(bucket_name)
+        mock_blob.upload_from_string.assert_called_once_with(
+            data="key1,key2\r\nvalue1,value2\r\n",
+            content_type="text/csv",
+        )
+
     def test_upload_dict_to_gcs_invalid_format(self):
         # Arrange
         client = CloudStorageClient()
