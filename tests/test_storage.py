@@ -1,5 +1,5 @@
-import unittest
 from unittest.mock import MagicMock, patch
+import unittest
 from bigquery_advanced_utils.storage import CloudStorageClient
 
 
@@ -8,8 +8,10 @@ class TestCloudStorageClient(unittest.TestCase):
     def test_upload_dict_to_gcs_json(self, mock_bucket):
         # Arrange
         client = CloudStorageClient()
-        mock_blob = MagicMock()
-        mock_bucket.return_value.blob.return_value = mock_blob
+        mock_blob = MagicMock()  # Create a mock blob object
+        mock_bucket.return_value.blob.return_value = (
+            mock_blob  # Mock the bucket's blob method
+        )
 
         bucket_name = "test-bucket"
         file_name = "test-file.json"
@@ -24,8 +26,10 @@ class TestCloudStorageClient(unittest.TestCase):
         )
 
         # Assert
-        mock_bucket.assert_called_once_with(bucket_name)
-        mock_blob.upload_from_string.assert_called_once_with(
+        mock_bucket.assert_called_once_with(
+            bucket_name
+        )  # Ensure the bucket method was called correctly
+        mock_blob.upload_from_string.assert_called_once_with(  # Check that upload is called with correct data
             data="""[
   {
     "key1": "value1",
