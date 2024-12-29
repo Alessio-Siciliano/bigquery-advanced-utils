@@ -54,8 +54,7 @@ class TestLoggingClient(unittest.TestCase):
 
         mock_list_entries.return_value = self.mock_entries
 
-        logging_client = LoggingClient()
-        logs = logging_client.get_all_data_access_logs(days)
+        logs = self.logging_client.get_all_data_access_logs(days)
 
         self.assertEqual(len(logs), 1)
         self.assertEqual(logs[0]["id"], "1")
@@ -96,8 +95,7 @@ class TestLoggingClient(unittest.TestCase):
             )
         ]
 
-        logging_client = LoggingClient()
-        logs = logging_client.get_all_data_access_logs(days)
+        logs = self.logging_client.get_all_data_access_logs(days)
 
         self.assertEqual(len(logs), 0)
 
@@ -137,8 +135,7 @@ class TestLoggingClient(unittest.TestCase):
             )
         ]
 
-        logging_client = LoggingClient()
-        logs = logging_client.get_all_data_access_logs(days)
+        logs = self.logging_client.get_all_data_access_logs(days)
 
         self.assertEqual(len(logs), 1)
 
@@ -214,11 +211,17 @@ class TestLoggingClient(unittest.TestCase):
 
         self.assertIn("Simulated error", str(context.exception))
 
+    @patch("bigquery_advanced_utils.storage.CloudStorageClient")
     @patch(
         "bigquery_advanced_utils.storage.CloudStorageClient.upload_dict_to_gcs"
     )
-    def test_export_logs_to_storage(self, mock_upload_dict_to_gcs):
+    def test_export_logs_to_storage(
+        self, mock_upload_dict_to_gcs, MockCloudStorageClient
+    ):
         mock_upload_dict_to_gcs.return_value = None
+        MockCloudStorageClient.return_value.upload_dict_to_gcs = (
+            mock_upload_dict_to_gcs
+        )
         self.logging_client.cache = {
             "cached": True,
             "start_time": datetime.now() - timedelta(days=2),
