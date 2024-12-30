@@ -34,6 +34,8 @@ from google.auth.exceptions import RefreshError
 from google.cloud.exceptions import GoogleCloudError
 from bigquery_advanced_utils.core.constants import (
     OUTPUT_FILE_FORMAT,
+)
+from bigquery_advanced_utils.core.types import (
     OutputFileFormat,
     PermissionActionTypes,
 )

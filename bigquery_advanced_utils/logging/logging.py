@@ -2,19 +2,21 @@
 
 import re
 import logging
-from datetime import datetime, timedelta, timezone
+from typing import Tuple
+from datetime import datetime, timedelta
 from google.cloud.logging import Client, DESCENDING
 from bigquery_advanced_utils.storage import CloudStorageClient
 from bigquery_advanced_utils.core.constants import (
     MATCHING_RULE_TABLE_REF_ID,
     FILTER_ACCESS_LOGS,
     SOURCE_ORIGIN_TYPE,
-    OutputFileFormat,
 )
+from bigquery_advanced_utils.core.types import OutputFileFormat
 from bigquery_advanced_utils.core.decorators import (
     run_once,
     singleton_instance,
 )
+from bigquery_advanced_utils.utils import datetime_utils
 
 
 class LoggingClient(Client):
@@ -25,7 +27,56 @@ class LoggingClient(Client):
         logging.debug("Init LoggingClient")
         super().__init__(*args, **kwargs)
         self.data_access_logs = []
-        self.cached = False
+        self.cache = {"cached": False, "start_time": None, "end_time": None}
+
+    def _calculate_interval(
+        self, *args, **kwargs
+    ) -> Tuple[datetime, datetime]:
+        """Calculate the time interval based on the provided arguments.
+
+        Parameters
+        ----------
+        *args: int
+            Number of days to look back.
+
+        **kwargs: datetime
+            Start date and end date.
+
+        Returns
+        -------
+        Tuple[datetime, datetime]
+            Start and end of the interval.
+
+        Raises
+        ------
+        ValueError
+            If the arguments are not valid.
+        """
+        # Check presence of keywords
+        check_if_start_time = kwargs.get("start_time") is not None
+        days = next(
+            (item for item in args if isinstance(item, int)),
+            kwargs.get("days", None),
+        )
+
+        if days is not None:
+            start_time = datetime.now() - timedelta(days=days)
+            end_time = datetime.now()
+        elif check_if_start_time is True:
+            start_time = datetime_utils.resolve_datetime(
+                kwargs.get("start_time")
+            )
+            end_time = (
+                datetime_utils.resolve_datetime(kwargs.get("end_time"))
+                if kwargs.get("end_time") is not None
+                else datetime.now()
+            )
+            if start_time > end_time:
+                raise ValueError("Start time must be before end time.")
+        else:
+            raise ValueError("Invalid arguments, datetime range missing.")
+
+        return start_time, end_time
 
     def get_all_data_access_logs(  # pylint: disable=too-many-locals
         self, *args, **kwargs
@@ -54,20 +105,7 @@ class LoggingClient(Client):
             If an error occurs while getting logs.
         """
 
-        if len(args) == 1 and not kwargs:
-            days = args[0]
-            start_time = datetime.now(timezone.utc) - timedelta(days=days)
-            end_time = datetime.now(timezone.utc)
-        elif len(kwargs) == 2 and not args:
-            start_time = kwargs.get("start_date")
-            end_time = kwargs.get("end_date")
-            if start_time >= end_time:
-                raise ValueError("Start date must be before end date.")
-        elif len(kwargs) == 1 and not args and "start_date" in kwargs:
-            start_time = kwargs.get("start_date")
-            end_time = datetime.now(timezone.utc)
-        else:
-            raise ValueError("Invalid arguments.")
+        start_time, end_time = self._calculate_interval(*args, **kwargs)
 
         filter_query = (
             FILTER_ACCESS_LOGS + " " + f'logName="projects/{self.project}/"'
@@ -152,17 +190,14 @@ class LoggingClient(Client):
                 SOURCE_ORIGIN_TYPE.get("power_bi"),
             ):
                 list_of_resources = list(
-                    set(
-                        item["resource"]
-                        for item in dict_payload.get("authorizationInfo", [])
-                        if "resource" in item
-                        and re.match(
-                            MATCHING_RULE_TABLE_REF_ID, item["resource"]
-                        )
-                    )
+                    item["resource"]
+                    for item in dict_payload.get("authorizationInfo", [])
+                    if "resource" in item
+                    and "granted" in item
+                    and item["granted"] is True
+                    and re.match(MATCHING_RULE_TABLE_REF_ID, item["resource"])
                 )
-
-                tables = [
+                tables = set(
                     f"{match[0][0]}.{match[0][1]}.{match[0][2]}"
                     for s in list_of_resources
                     if (
@@ -171,7 +206,7 @@ class LoggingClient(Client):
                             s,
                         )
                     )
-                ]
+                )
             else:
                 tables = set(
                     f'{x.get("projectId")}.{x.get("datasetId")}'
@@ -192,7 +227,6 @@ class LoggingClient(Client):
                     .get("referencedViews", {})
                 )
                 tables = tables.union(views)
-
             log_entry["referenced_tables"] = list(tables)
 
             # If no tables are found, skip log entry
@@ -236,7 +270,9 @@ class LoggingClient(Client):
             # Save the log entry
             self.data_access_logs.append(log_entry)
 
-        self.cached = True
+        self.cache["cached"] = True
+        self.cache["start_time"] = start_time
+        self.cache["end_time"] = end_time
         return self.data_access_logs
 
     def _flatten_dictionaries(self):
@@ -278,7 +314,7 @@ class LoggingClient(Client):
         return expanded_data
 
     def get_all_data_access_logs_by_table_id(
-        self, table_full_path: str
+        self, table_full_path: str, *args, **kwargs
     ) -> list[dict]:
         """Return all the access to a table.
 
@@ -286,6 +322,12 @@ class LoggingClient(Client):
         ----------
         table_full_path : str
             Project.Dataset.Table ID.
+
+        *args:
+            Positional arguments.
+
+        **kwargs:
+            Keywords arguments.
 
         Returns
         -------
@@ -297,20 +339,30 @@ class LoggingClient(Client):
         ValueError
             If the table_full_path is not in the correct format.
         """
+        start_time, end_time = self._calculate_interval(*args, **kwargs)
+
         if table_full_path.count(".") != 2:
             raise ValueError(
                 "The first parameter must be in the format "
                 "'project.dataset.table'."
             )
 
-        if not self.cached:
-            self.get_all_data_access_logs()
+        # The selected interval must be a sub-set of the cached one
+        if not self.cache.get("cached") or not (
+            self.cache.get("start_time") is not None
+            and self.cache.get("end_time") is not None
+            and start_time >= self.cache.get("start_time")
+            and end_time <= self.cache.get("end_time")
+        ):
+            self.get_all_data_access_logs(
+                start_time=start_time, end_time=end_time
+            )
 
         return [
             x
             for x in self.data_access_logs
-            if x.get("referenced_tables", "").lower()
-            == table_full_path.lower()
+            for table in x.get("referenced_tables", [])
+            if table.lower() == table_full_path.lower()
         ]
 
     @singleton_instance([CloudStorageClient])
@@ -336,10 +388,18 @@ class LoggingClient(Client):
 
         **kwargs:
             Keywords arguments.
+
+        Raises
+        ---------
+        ValueError
+            Call before the get_all_data_access_logs.
         """
 
-        if not self.cached:
-            self.get_all_data_access_logs()
+        if not self.cache.get("cached"):
+            raise ValueError(
+                "No data in cache, you should get logs with the desidered "
+                "time interval and then call this function."
+            )
 
         # Flatten all dictionaries
         expanded_data = self._flatten_dictionaries()
@@ -348,7 +408,7 @@ class LoggingClient(Client):
         all_keys = []
         for item in expanded_data:
             for key in item.keys():
-                if key not in all_keys:
+                if key not in all_keys:  # pragma: no cover
                     all_keys.append(key)
 
         kwargs.get("CloudStorageClient_instance").upload_dict_to_gcs(
